@@ -13,12 +13,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function LocationStep() {
   const { formData, dispatch } = useReservationForm();
   const [selectedAmenities, setSelectedAmenities] = useState<Amenity[]>([]);
   const [selectedType, setSelectedType] = useState<LocationType | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
 
   if (formData.type === "Vehicle Reservation") {
     return null;
@@ -77,19 +85,18 @@ export function LocationStep() {
     setSelectedType(null);
   };
 
-  const handleLocationSelect = (location: LocationData) => {
+  const handleLocationSelect = (location: LocationData, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     dispatch({ type: "ADD_LOCATION", payload: location });
   };
 
-  const handleLocationRemove = (locationId: string) => {
+  const handleLocationRemove = (locationId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     dispatch({ type: "REMOVE_LOCATION", payload: locationId });
   };
 
-  const handleDateRemove = (locationId: string, dateId: string) => {
-    dispatch({ 
-      type: "REMOVE_DATE_FROM_LOCATION", 
-      payload: { locationId, dateId } 
-    });
+  const handleCardClick = (location: LocationData) => {
+    setSelectedLocation(location);
   };
 
   const handleDateToggle = (locationId: string, dateId: string) => {
@@ -123,7 +130,11 @@ export function LocationStep() {
 
       <div className="space-y-4">
         {formData.locations.map((location) => (
-          <Card key={location.id} className="overflow-hidden">
+          <Card 
+            key={location.id} 
+            className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => handleCardClick(location)}
+          >
             <div className="flex items-center p-4">
               <MapPin className="w-8 h-8 text-muted-foreground mr-4" />
               <div className="flex-1">
@@ -141,7 +152,10 @@ export function LocationStep() {
                           key={date.id}
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDateToggle(location.id, date.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDateToggle(location.id, date.id);
+                          }}
                           className={`flex items-center gap-2 transition-colors ${
                             !isExcluded 
                               ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
@@ -165,7 +179,8 @@ export function LocationStep() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleLocationRemove(location.id)}
+                onClick={(e) => handleLocationRemove(location.id, e)}
+                className="shrink-0"
               >
                 <X className="w-4 h-4 text-destructive" />
               </Button>
@@ -244,9 +259,8 @@ export function LocationStep() {
           {filteredLocations.map((location) => (
             <div
               key={location.id}
-              className={`bg-white rounded-lg shadow-md overflow-hidden border ${
-                isLocationSelected(location.id) ? 'border-primary' : 'border-border'
-              } relative`}
+              className={`bg-white rounded-lg shadow-md overflow-hidden border cursor-pointer hover:shadow-lg transition-shadow`}
+              onClick={() => handleCardClick(location)}
             >
               {isLocationSelected(location.id) && (
                 <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
@@ -286,7 +300,10 @@ export function LocationStep() {
                       : 'Not available for selected dates'}
                 </div>
                 <Button
-                  onClick={() => isLocationSelected(location.id) ? handleLocationRemove(location.id) : handleLocationSelect(location)}
+                  onClick={(e) => isLocationSelected(location.id) 
+                    ? handleLocationRemove(location.id, e) 
+                    : handleLocationSelect(location, e)
+                  }
                   variant={isLocationSelected(location.id) ? "destructive" : "default"}
                   className="w-full"
                 >
@@ -297,6 +314,44 @@ export function LocationStep() {
           ))}
         </div>
       </div>
+
+      <Dialog 
+        open={selectedLocation !== null} 
+        onOpenChange={() => setSelectedLocation(null)}
+      >
+        <DialogContent className="max-w-3xl h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedLocation?.name}</DialogTitle>
+            <DialogDescription>
+              Detailed view of the selected location
+            </DialogDescription>
+          </DialogHeader>
+          {selectedLocation && (
+            <div className="space-y-4">
+              <img
+                src={selectedLocation.image}
+                alt={selectedLocation.name}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">{selectedLocation.name}</h3>
+                <p className="text-muted-foreground">Type: {selectedLocation.type}</p>
+                <p className="text-muted-foreground">Rate: ${selectedLocation.rate}/hour</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedLocation.amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
+                    >
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

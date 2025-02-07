@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PlusCircle, MinusCircle, Package, ToggleLeft, ToggleRight, X } from "lucide-react";
+import { PlusCircle, X, Package, ToggleLeft, ToggleRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -20,6 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const vehicleOptions: AdditionalItem[] = [
   {
@@ -87,6 +94,7 @@ export function AdditionalNeedsStep() {
   const { formData, dispatch } = useReservationForm();
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
   const [selectedType, setSelectedType] = useState<string>("all");
+  const [selectedItem, setSelectedItem] = useState<AdditionalItem | null>(null);
 
   const availableItems = formData.type === "Vehicle Reservation" ? vehicleOptions : facilityOptions;
   const filteredItems = selectedType === "all" 
@@ -108,7 +116,8 @@ export function AdditionalNeedsStep() {
     }
   };
 
-  const handleRemoveItem = (itemId: string) => {
+  const handleRemoveItem = (itemId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     dispatch({ type: "REMOVE_ITEM", payload: itemId });
   };
 
@@ -144,6 +153,10 @@ export function AdditionalNeedsStep() {
     }
   };
 
+  const handleCardClick = (item: AdditionalItem) => {
+    setSelectedItem(item);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center mb-4">
@@ -152,7 +165,11 @@ export function AdditionalNeedsStep() {
 
       <div className="space-y-4">
         {formData.additionalItems.map((item) => (
-          <Card key={item.id} className="overflow-hidden">
+          <Card 
+            key={item.id} 
+            className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => handleCardClick(item)}
+          >
             <div className="flex items-center p-4">
               <Package className="w-8 h-8 text-muted-foreground mr-4" />
               <div className="flex-1">
@@ -170,7 +187,10 @@ export function AdditionalNeedsStep() {
                           key={date.id}
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDateToggle(item.id, date.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDateToggle(item.id, date.id);
+                          }}
                           className={`flex items-center gap-2 transition-colors ${
                             isIncluded 
                               ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
@@ -194,9 +214,10 @@ export function AdditionalNeedsStep() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleRemoveItem(item.id)}
+                onClick={(e) => handleRemoveItem(item.id, e)}
+                className="shrink-0"
               >
-                <MinusCircle className="w-4 h-4 text-destructive" />
+                <X className="w-4 h-4 text-destructive" />
               </Button>
             </div>
           </Card>
@@ -238,7 +259,11 @@ export function AdditionalNeedsStep() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
+            <Card 
+              key={item.id} 
+              className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => handleCardClick(item)}
+            >
               <CardHeader className="p-0">
                 <img
                   src={item.image}
@@ -262,6 +287,7 @@ export function AdditionalNeedsStep() {
                     min="1"
                     max={item.quantityAvailable}
                     value={selectedQuantities[item.id] || 1}
+                    onClick={(e) => e.stopPropagation()}
                     onChange={(e) =>
                       handleQuantityChange(item.id, e.target.value)
                     }
@@ -272,7 +298,10 @@ export function AdditionalNeedsStep() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleAddItem(item)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddItem(item);
+                  }}
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Add
@@ -282,6 +311,35 @@ export function AdditionalNeedsStep() {
           ))}
         </div>
       </div>
+
+      <Dialog 
+        open={selectedItem !== null} 
+        onOpenChange={() => setSelectedItem(null)}
+      >
+        <DialogContent className="max-w-3xl h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedItem?.name}</DialogTitle>
+            <DialogDescription>
+              Detailed view of the selected item
+            </DialogDescription>
+          </DialogHeader>
+          {selectedItem && (
+            <div className="space-y-4">
+              <img
+                src={selectedItem.image}
+                alt={selectedItem.name}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">{selectedItem.name}</h3>
+                <p className="text-muted-foreground">Type: {selectedItem.type}</p>
+                <p className="text-muted-foreground">Rate: ${selectedItem.rate}/day</p>
+                <p className="text-muted-foreground">Available Quantity: {selectedItem.quantityAvailable}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
