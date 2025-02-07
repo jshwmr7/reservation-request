@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Plus, Filter, X, ToggleLeft, ToggleRight, Check } from "lucide-react";
@@ -111,159 +112,163 @@ export function LocationStep() {
         <h2 className="text-2xl font-semibold text-primary-dark">Reserved Location(s)</h2>
       </div>
 
-      {formData.locations.length > 0 && (
-        <div className="bg-muted p-4 rounded-lg mb-6">
-          <h3 className="text-lg font-semibold mb-4">Selected Locations</h3>
-          <div className="space-y-4">
-            {formData.locations.map((location) => (
-              <div key={location.id} className="flex flex-col bg-background p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <h4 className="font-medium">{location.name}</h4>
-                    <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
+      <div className="space-y-6">
+        {formData.locations.length > 0 && (
+          <div className="bg-muted p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-semibold mb-4">Selected Locations</h3>
+            <div className="space-y-4">
+              {formData.locations.map((location) => (
+                <div key={location.id} className="flex flex-col bg-background p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h4 className="font-medium">{location.name}</h4>
+                      <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleLocationRemove(location.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLocationRemove(location.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="pl-4 space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Reserved Dates:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.dates.map((date) => {
-                      const isExcluded = location.excludedDates?.includes(date.id);
-                      return (
-                        <Button
-                          key={date.id}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDateToggle(location.id, date.id)}
-                          className={`flex items-center gap-2 transition-colors ${
-                            !isExcluded 
-                              ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                              : 'hover:bg-muted'
-                          }`}
-                        >
-                          {!isExcluded ? (
-                            <ToggleRight className="w-4 h-4" />
-                          ) : (
-                            <ToggleLeft className="w-4 h-4" />
-                          )}
-                          <span>{format(date.date, "MMM d, yyyy")}</span>
-                        </Button>
-                      );
-                    })}
+                  <div className="pl-4 space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Reserved Dates:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.dates.map((date) => {
+                        const isExcluded = location.excludedDates?.includes(date.id);
+                        return (
+                          <Button
+                            key={date.id}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDateToggle(location.id, date.id)}
+                            className={`flex items-center gap-2 transition-colors ${
+                              !isExcluded 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'hover:bg-muted'
+                            }`}
+                          >
+                            {!isExcluded ? (
+                              <ToggleRight className="w-4 h-4" />
+                            ) : (
+                              <ToggleLeft className="w-4 h-4" />
+                            )}
+                            <span>
+                              {format(date.date, "MMM d")} ({date.startTime}-{date.endTime})
+                            </span>
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Select
+              value={selectedType || ""}
+              onValueChange={(value) => setSelectedType(value as LocationType)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Location Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Sports Field">Sports Field</SelectItem>
+                <SelectItem value="Baseball Diamond">Baseball Diamond</SelectItem>
+                <SelectItem value="Gymnasium">Gymnasium</SelectItem>
+                <SelectItem value="Classroom">Classroom</SelectItem>
+              </SelectContent>
+            </Select>
+            {selectedType && (
+              <button
+                onClick={clearTypeSelection}
+                className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Filter by amenities:</span>
+            {["Parking", "Wheel Chair Access", "Wi-fi"].map((amenity) => (
+              <label key={amenity} className="flex items-center gap-2">
+                <Checkbox
+                  checked={selectedAmenities.includes(amenity as Amenity)}
+                  onCheckedChange={() => handleAmenityToggle(amenity as Amenity)}
+                />
+                <span className="text-sm">{amenity}</span>
+              </label>
             ))}
           </div>
         </div>
-      )}
 
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1 relative">
-          <Select
-            value={selectedType || ""}
-            onValueChange={(value) => setSelectedType(value as LocationType)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select Location Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Sports Field">Sports Field</SelectItem>
-              <SelectItem value="Baseball Diamond">Baseball Diamond</SelectItem>
-              <SelectItem value="Gymnasium">Gymnasium</SelectItem>
-              <SelectItem value="Classroom">Classroom</SelectItem>
-            </SelectContent>
-          </Select>
-          {selectedType && (
-            <button
-              onClick={clearTypeSelection}
-              className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Filter by amenities:</span>
-          {["Parking", "Wheel Chair Access", "Wi-fi"].map((amenity) => (
-            <label key={amenity} className="flex items-center gap-2">
-              <Checkbox
-                checked={selectedAmenities.includes(amenity as Amenity)}
-                onCheckedChange={() => handleAmenityToggle(amenity as Amenity)}
-              />
-              <span className="text-sm">{amenity}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLocations.map((location) => {
-          const selected = isLocationSelected(location.id);
-          return (
-            <div
-              key={location.id}
-              className={`bg-white rounded-lg shadow-md overflow-hidden border ${
-                selected ? 'border-primary' : 'border-border'
-              } relative`}
-            >
-              {selected && (
-                <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
-                  <Check className="w-4 h-4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLocations.map((location) => {
+            const selected = isLocationSelected(location.id);
+            return (
+              <div
+                key={location.id}
+                className={`bg-white rounded-lg shadow-md overflow-hidden border ${
+                  selected ? 'border-primary' : 'border-border'
+                } relative`}
+              >
+                {selected && (
+                  <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
+                    <Check className="w-4 h-4" />
+                  </div>
+                )}
+                <img
+                  src={location.image}
+                  alt={location.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
+                  <p className="font-medium mb-2">${location.rate}/hour</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {location.amenities.map((amenity) => (
+                      <span
+                        key={amenity}
+                        className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
+                      >
+                        {amenity}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={`text-sm mb-4 ${
+                    location.availability === 'all' 
+                      ? 'text-green-600' 
+                      : location.availability === 'some' 
+                        ? 'text-yellow-600' 
+                        : 'text-red-600'
+                  }`}>
+                    {location.availability === 'all' 
+                      ? 'Available for all dates'
+                      : location.availability === 'some'
+                        ? 'Available for some dates'
+                        : 'Not available for selected dates'}
+                  </div>
+                  <Button
+                    onClick={() => selected ? handleLocationRemove(location.id) : handleLocationSelect(location)}
+                    variant={selected ? "destructive" : "default"}
+                    className="w-full"
+                  >
+                    {selected ? "Remove Location" : "Select Location"}
+                  </Button>
                 </div>
-              )}
-              <img
-                src={location.image}
-                alt={location.name}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
-                <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
-                <p className="font-medium mb-2">${location.rate}/hour</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {location.amenities.map((amenity) => (
-                    <span
-                      key={amenity}
-                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
-                    >
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-                <div className={`text-sm mb-4 ${
-                  location.availability === 'all' 
-                    ? 'text-green-600' 
-                    : location.availability === 'some' 
-                      ? 'text-yellow-600' 
-                      : 'text-red-600'
-                }`}>
-                  {location.availability === 'all' 
-                    ? 'Available for all dates'
-                    : location.availability === 'some'
-                      ? 'Available for some dates'
-                      : 'Not available for selected dates'}
-                </div>
-                <Button
-                  onClick={() => selected ? handleLocationRemove(location.id) : handleLocationSelect(location)}
-                  variant={selected ? "destructive" : "default"}
-                  className="w-full"
-                >
-                  {selected ? "Remove Location" : "Select Location"}
-                </Button>
               </div>
-            </div>
+            )}
           )}
-        )}
+        </div>
       </div>
     </div>
   );

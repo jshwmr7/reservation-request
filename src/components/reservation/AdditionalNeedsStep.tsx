@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
@@ -146,131 +147,131 @@ export function AdditionalNeedsStep() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Selected Items</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Available Items</h3>
-            <Select
-              value={selectedType}
-              onValueChange={(value) => setSelectedType(value)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {itemTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-4">
-            {filteredItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <CardHeader className="p-0">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-48 object-cover"
-                  />
-                </CardHeader>
-                <CardContent className="p-4">
-                  <CardTitle className="text-lg mb-2">{item.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Rate: ${item.rate}/day
-                  </p>
+          {formData.additionalItems.map((item) => (
+            <Card key={item.id} className="overflow-hidden">
+              <div className="flex items-center p-4">
+                <Package className="w-8 h-8 text-muted-foreground mr-4" />
+                <div className="flex-1">
+                  <h4 className="font-medium">{item.name}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Available: {item.quantityAvailable}
+                    Quantity: {item.selectedQuantity} | ${item.rate}/day each
                   </p>
-                </CardContent>
-                <CardFooter className="flex items-center justify-between p-4 bg-muted/50">
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      max={item.quantityAvailable}
-                      value={selectedQuantities[item.id] || 1}
-                      onChange={(e) =>
-                        handleQuantityChange(item.id, e.target.value)
-                      }
-                      className="w-20"
-                    />
-                    <span className="text-sm text-muted-foreground">Quantity</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAddItem(item)}
-                  >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Selected Items</h3>
-          <div className="space-y-4">
-            {formData.additionalItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <div className="flex items-center p-4">
-                  <Package className="w-8 h-8 text-muted-foreground mr-4" />
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.name}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Quantity: {item.selectedQuantity} | ${item.rate}/day each
-                    </p>
-                    <div className="mt-2">
-                      <p className="text-sm font-medium mb-1">Selected Dates:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {formData.dates.map((date) => {
-                          const isIncluded = item.includedDates?.includes(date.id);
-                          return (
-                            <Button 
-                              key={date.id}
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDateToggle(item.id, date.id)}
-                              className={`flex items-center gap-2 transition-colors ${
-                                isIncluded 
-                                  ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                                  : 'hover:bg-muted'
-                              }`}
-                            >
-                              {isIncluded ? (
-                                <ToggleRight className="w-4 h-4" />
-                              ) : (
-                                <ToggleLeft className="w-4 h-4" />
-                              )}
-                              <span>{format(date.date, "MMM d")}</span>
-                            </Button>
-                          );
-                        })}
-                      </div>
+                  <div className="mt-2">
+                    <p className="text-sm font-medium mb-1">Selected Dates:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.dates.map((date) => {
+                        const isIncluded = item.includedDates?.includes(date.id);
+                        return (
+                          <Button 
+                            key={date.id}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDateToggle(item.id, date.id)}
+                            className={`flex items-center gap-2 transition-colors ${
+                              isIncluded 
+                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                : 'hover:bg-muted'
+                            }`}
+                          >
+                            {isIncluded ? (
+                              <ToggleRight className="w-4 h-4" />
+                            ) : (
+                              <ToggleLeft className="w-4 h-4" />
+                            )}
+                            <span>
+                              {format(date.date, "MMM d")} ({date.startTime}-{date.endTime})
+                            </span>
+                          </Button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveItem(item.id)}
-                  >
-                    <MinusCircle className="w-4 h-4 text-destructive" />
-                  </Button>
                 </div>
-              </Card>
-            ))}
-            {formData.additionalItems.length === 0 && (
-              <div className="text-center p-8 border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground">No items selected</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveItem(item.id)}
+                >
+                  <MinusCircle className="w-4 h-4 text-destructive" />
+                </Button>
               </div>
-            )}
-          </div>
+            </Card>
+          ))}
+          {formData.additionalItems.length === 0 && (
+            <div className="text-center p-8 border-2 border-dashed rounded-lg">
+              <p className="text-muted-foreground">No items selected</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Available Items</h3>
+          <Select
+            value={selectedType}
+            onValueChange={(value) => setSelectedType(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              {itemTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredItems.map((item) => (
+            <Card key={item.id} className="overflow-hidden">
+              <CardHeader className="p-0">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-48 object-cover"
+                />
+              </CardHeader>
+              <CardContent className="p-4">
+                <CardTitle className="text-lg mb-2">{item.name}</CardTitle>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Rate: ${item.rate}/day
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Available: {item.quantityAvailable}
+                </p>
+              </CardContent>
+              <CardFooter className="flex items-center justify-between p-4 bg-muted/50">
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    max={item.quantityAvailable}
+                    value={selectedQuantities[item.id] || 1}
+                    onChange={(e) =>
+                      handleQuantityChange(item.id, e.target.value)
+                    }
+                    className="w-20"
+                  />
+                  <span className="text-sm text-muted-foreground">Quantity</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAddItem(item)}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
     </div>
