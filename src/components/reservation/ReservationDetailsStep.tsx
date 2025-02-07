@@ -9,19 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, Plus, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { nanoid } from "nanoid";
-import { ReservationDate, ReservationType } from "@/types/reservation";
+import { ReservationDate } from "@/types/reservation";
 
 export function ReservationDetailsStep() {
   const { formData, dispatch } = useReservationForm();
@@ -55,24 +48,6 @@ export function ReservationDetailsStep() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Reservation Type</label>
-        <Select
-          value={formData.type}
-          onValueChange={(value: ReservationType) =>
-            dispatch({ type: "SET_TYPE", payload: value })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select reservation type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Vehicle Reservation">Vehicle Reservation</SelectItem>
-            <SelectItem value="Facility Rental">Facility Rental</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="space-y-2">
         <label className="text-sm font-medium">Description</label>
         <Textarea
@@ -129,21 +104,20 @@ export function ReservationDetailsStep() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Repeat Schedule</label>
-                  <Select
-                    value={repeatSchedule}
-                    onValueChange={(value: "daily" | "weekly" | "biweekly") =>
-                      setRepeatSchedule(value)
+                  <select
+                    value={repeatSchedule || ""}
+                    onChange={(e) =>
+                      setRepeatSchedule(
+                        e.target.value as "daily" | "weekly" | "biweekly" | undefined
+                      )
                     }
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="No repeat" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <option value="">No repeat</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="biweekly">Bi-weekly</option>
+                  </select>
                 </div>
                 <Button
                   onClick={handleAddDate}

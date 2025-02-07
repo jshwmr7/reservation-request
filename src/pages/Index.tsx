@@ -1,14 +1,17 @@
+
 import { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
 import { LocationStep } from "@/components/reservation/LocationStep";
 import { AdditionalNeedsStep } from "@/components/reservation/AdditionalNeedsStep";
+import { TypeSelectionStep } from "@/components/reservation/TypeSelectionStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 
 const steps = [
+  "Type",
   "Reservation Details",
   "Location",
   "Additional Needs",
@@ -22,9 +25,9 @@ const ReservationForm = () => {
 
   const handleNext = () => {
     if (currentStep < getVisibleSteps().length - 1) {
-      // If current step is 0 and it's a vehicle reservation, skip to step 2
-      if (currentStep === 0 && formData.type === "Vehicle Reservation") {
-        setCurrentStep(2);
+      // If current step is 1 and it's a vehicle reservation, skip to step 3
+      if (currentStep === 1 && formData.type === "Vehicle Reservation") {
+        setCurrentStep(3);
       } else {
         setCurrentStep((prev) => prev + 1);
       }
@@ -33,9 +36,9 @@ const ReservationForm = () => {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      // If we're on step 2 and it's a vehicle reservation, go back to step 0
-      if (currentStep === 2 && formData.type === "Vehicle Reservation") {
-        setCurrentStep(0);
+      // If we're on step 3 and it's a vehicle reservation, go back to step 1
+      if (currentStep === 3 && formData.type === "Vehicle Reservation") {
+        setCurrentStep(1);
       } else {
         setCurrentStep((prev) => prev - 1);
       }
@@ -59,10 +62,12 @@ const ReservationForm = () => {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <ReservationDetailsStep />;
+        return <TypeSelectionStep />;
       case 1:
-        return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+        return <ReservationDetailsStep />;
       case 2:
+        return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+      case 3:
         return <AdditionalNeedsStep />;
       default:
         return (
@@ -108,7 +113,7 @@ const ReservationForm = () => {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-bold mb-4 text-primary-dark">Make a Reservation</h1>
+            <h1 className="text-4xl font-bold mb-4 text-primary-dark">New Reservation</h1>
             <p className="text-muted-foreground">
               Complete the form below to submit your reservation request
             </p>
