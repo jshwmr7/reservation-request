@@ -57,7 +57,7 @@ const Index = () => {
           <div className="w-64 min-h-screen bg-sidebar-background text-sidebar-foreground p-6">
             <div className="mb-8">
               <img 
-                src="/lovable-uploads/fc19dc02-16dc-4c25-a71e-2c95756892cb.png" 
+                src="/lovable-uploads/4a7db52c-f46c-4061-9c89-deeb179b255f.png" 
                 alt="FMX Logo" 
                 className="w-32 mx-auto"
               />
