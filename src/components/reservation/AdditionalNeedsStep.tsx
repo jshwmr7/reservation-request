@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
@@ -12,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PlusCircle, MinusCircle, Package, ToggleLeft, ToggleRight } from "lucide-react";
+import { PlusCircle, MinusCircle, Package, ToggleLeft, ToggleRight, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -147,65 +146,66 @@ export function AdditionalNeedsStep() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold text-primary-dark">Selected Items</h2>
+      </div>
+
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Selected Items</h3>
-        <div className="space-y-4">
-          {formData.additionalItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <div className="flex items-center p-4">
-                <Package className="w-8 h-8 text-muted-foreground mr-4" />
-                <div className="flex-1">
-                  <h4 className="font-medium">{item.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Quantity: {item.selectedQuantity} | ${item.rate}/day each
-                  </p>
-                  <div className="mt-2">
-                    <p className="text-sm font-medium mb-1">Selected Dates:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.dates.map((date) => {
-                        const isIncluded = item.includedDates?.includes(date.id);
-                        return (
-                          <Button 
-                            key={date.id}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDateToggle(item.id, date.id)}
-                            className={`flex items-center gap-2 transition-colors ${
-                              isIncluded 
-                                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                                : 'hover:bg-muted'
-                            }`}
-                          >
-                            {isIncluded ? (
-                              <ToggleRight className="w-4 h-4" />
-                            ) : (
-                              <ToggleLeft className="w-4 h-4" />
-                            )}
-                            <span>
-                              {format(date.date, "MMM d")} ({date.startTime}-{date.endTime})
-                            </span>
-                          </Button>
-                        );
-                      })}
-                    </div>
+        {formData.additionalItems.map((item) => (
+          <Card key={item.id} className="overflow-hidden">
+            <div className="flex items-center p-4">
+              <Package className="w-8 h-8 text-muted-foreground mr-4" />
+              <div className="flex-1">
+                <h4 className="font-medium">{item.name}</h4>
+                <p className="text-sm text-muted-foreground">
+                  Quantity: {item.selectedQuantity} | ${item.rate}/day each
+                </p>
+                <div className="mt-2">
+                  <p className="text-sm font-medium mb-1">Selected Dates:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.dates.map((date) => {
+                      const isIncluded = item.includedDates?.includes(date.id);
+                      return (
+                        <Button 
+                          key={date.id}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDateToggle(item.id, date.id)}
+                          className={`flex items-center gap-2 transition-colors ${
+                            isIncluded 
+                              ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                              : 'hover:bg-muted'
+                          }`}
+                        >
+                          {isIncluded ? (
+                            <ToggleRight className="w-4 h-4" />
+                          ) : (
+                            <ToggleLeft className="w-4 h-4" />
+                          )}
+                          <span>
+                            {format(date.date, "MMM d")} ({date.startTime}-{date.endTime})
+                          </span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveItem(item.id)}
-                >
-                  <MinusCircle className="w-4 h-4 text-destructive" />
-                </Button>
               </div>
-            </Card>
-          ))}
-          {formData.additionalItems.length === 0 && (
-            <div className="text-center p-8 border-2 border-dashed rounded-lg">
-              <p className="text-muted-foreground">No items selected</p>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveItem(item.id)}
+              >
+                <MinusCircle className="w-4 h-4 text-destructive" />
+              </Button>
             </div>
-          )}
-        </div>
+          </Card>
+        ))}
+        {formData.additionalItems.length === 0 && (
+          <div className="text-center p-8 border-2 border-dashed rounded-lg">
+            <p className="text-muted-foreground">No items selected</p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -226,7 +226,15 @@ export function AdditionalNeedsStep() {
               ))}
             </SelectContent>
           </Select>
-          <h3 className="text-lg font-semibold flex-1">Available Items</h3>
+          {selectedType !== "all" && (
+            <button
+              onClick={() => setSelectedType("all")}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <h2 className="text-2xl font-semibold text-primary-dark flex-1">Available Items</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredItems.map((item) => (
