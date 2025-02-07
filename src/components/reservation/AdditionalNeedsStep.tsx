@@ -209,8 +209,7 @@ export function AdditionalNeedsStep() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Available Items</h3>
+        <div className="flex items-center space-x-4">
           <Select
             value={selectedType}
             onValueChange={(value) => setSelectedType(value)}
@@ -227,6 +226,7 @@ export function AdditionalNeedsStep() {
               ))}
             </SelectContent>
           </Select>
+          <h3 className="text-lg font-semibold flex-1">Available Items</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredItems.map((item) => (

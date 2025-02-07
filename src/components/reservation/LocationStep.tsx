@@ -169,13 +169,13 @@ export function LocationStep() {
           </div>
         )}
 
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1 relative">
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center space-x-4">
             <Select
               value={selectedType || ""}
               onValueChange={(value) => setSelectedType(value as LocationType)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Location Type" />
               </SelectTrigger>
               <SelectContent>
@@ -188,7 +188,7 @@ export function LocationStep() {
             {selectedType && (
               <button
                 onClick={clearTypeSelection}
-                className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700"
               >
                 <X className="h-4 w-4" />
               </button>
