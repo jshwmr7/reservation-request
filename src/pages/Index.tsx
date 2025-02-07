@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
 import { LocationStep } from "@/components/reservation/LocationStep";
 import { AdditionalNeedsStep } from "@/components/reservation/AdditionalNeedsStep";
 import { TypeSelectionStep } from "@/components/reservation/TypeSelectionStep";
+import { ReservationSummaryStep } from "@/components/reservation/ReservationSummaryStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -76,12 +76,10 @@ const ReservationForm = () => {
         return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
       case 3:
         return <AdditionalNeedsStep />;
+      case 4:
+        return <ReservationSummaryStep />;
       default:
-        return (
-          <div className="text-center text-muted-foreground">
-            Step {currentStep + 1} content coming in the next iteration
-          </div>
-        );
+        return null;
     }
   };
 
@@ -91,7 +89,6 @@ const ReservationForm = () => {
   return (
     <div className="min-h-screen bg-[#f3f3f3] font-figtree">
       <div className="flex">
-        {/* Sidebar */}
         <div className="w-64 min-h-screen bg-sidebar-background text-sidebar-foreground p-6">
           <div className="mb-8">
             <img 
@@ -112,7 +109,6 @@ const ReservationForm = () => {
           </nav>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 p-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
