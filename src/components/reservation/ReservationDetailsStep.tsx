@@ -8,14 +8,15 @@ import { CalendarIcon, Plus, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { nanoid } from "nanoid";
 import { ReservationDate } from "@/types/reservation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-interface DateFieldProps {
-  onAdd: (date: ReservationDate) => void;
-  onRemove?: () => void;
-  showRemoveButton?: boolean;
-}
-
-const DateField = ({ onAdd, onRemove, showRemoveButton }: DateFieldProps) => {
+const DateDialog = ({ onAdd }: { onAdd: (date: ReservationDate) => void }) => {
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedStartTime, setSelectedStartTime] = useState<string>("09:00");
   const [selectedEndTime, setSelectedEndTime] = useState<string>("17:00");
@@ -41,7 +42,7 @@ const DateField = ({ onAdd, onRemove, showRemoveButton }: DateFieldProps) => {
   };
 
   return (
-    <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+    <div className="space-y-4">
       <div className="space-y-2">
         <label className="text-sm font-medium">Date</label>
         <Calendar
@@ -86,29 +87,21 @@ const DateField = ({ onAdd, onRemove, showRemoveButton }: DateFieldProps) => {
           <option value="biweekly">Bi-weekly</option>
         </select>
       </div>
-      {showRemoveButton ? (
-        <Button variant="ghost" size="sm" onClick={onRemove} className="w-full">
-          <XCircle className="w-4 h-4 mr-2" />
-          Remove Date
-        </Button>
-      ) : (
-        <Button
-          onClick={handleAddDate}
-          disabled={!selectedDate}
-          className="w-full"
-          variant="secondary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add This Date
-        </Button>
-      )}
+      <Button
+        onClick={handleAddDate}
+        disabled={!selectedDate}
+        className="w-full"
+        variant="secondary"
+      >
+        <Plus className="w-4 h-4 mr-2" />
+        Add This Date
+      </Button>
     </div>
   );
 };
 
 export function ReservationDetailsStep() {
   const { formData, dispatch } = useReservationForm();
-  const [dateFields, setDateFields] = useState([nanoid()]);
 
   const handleAddDate = (date: ReservationDate) => {
     dispatch({ type: "ADD_DATE", payload: date });
@@ -116,14 +109,6 @@ export function ReservationDetailsStep() {
 
   const handleRemoveDate = (id: string) => {
     dispatch({ type: "REMOVE_DATE", payload: id });
-  };
-
-  const addNewDateField = () => {
-    setDateFields((prev) => [...prev, nanoid()]);
-  };
-
-  const removeDateField = (index: number) => {
-    setDateFields((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -143,26 +128,24 @@ export function ReservationDetailsStep() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">Reservation Dates</label>
-          <Button variant="outline" size="sm" onClick={addNewDateField}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Another Date
-          </Button>
-        </div>
-
-        <div className="space-y-4">
-          {dateFields.map((fieldId, index) => (
-            <DateField
-              key={fieldId}
-              onAdd={handleAddDate}
-              onRemove={() => removeDateField(index)}
-              showRemoveButton={dateFields.length > 1}
-            />
-          ))}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Date
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Reservation Date</DialogTitle>
+              </DialogHeader>
+              <DateDialog onAdd={handleAddDate} />
+            </DialogContent>
+          </Dialog>
         </div>
 
         {formData.dates.length > 0 && (
           <div className="space-y-2">
-            <label className="text-sm font-medium">Selected Dates</label>
             {formData.dates.map((date) => (
               <div
                 key={date.id}
