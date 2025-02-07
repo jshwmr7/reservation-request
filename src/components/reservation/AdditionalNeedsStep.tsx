@@ -13,6 +13,13 @@ import {
 } from "@/components/ui/card";
 import { PlusCircle, MinusCircle, Package } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const vehicleOptions: AdditionalItem[] = [
   {
@@ -79,8 +86,16 @@ const facilityOptions: AdditionalItem[] = [
 export function AdditionalNeedsStep() {
   const { formData, dispatch } = useReservationForm();
   const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
+  const [selectedType, setSelectedType] = useState<string>("all");
 
   const availableItems = formData.type === "Vehicle Reservation" ? vehicleOptions : facilityOptions;
+  const filteredItems = selectedType === "all" 
+    ? availableItems 
+    : availableItems.filter(item => item.type === selectedType);
+
+  const itemTypes = formData.type === "Vehicle Reservation" 
+    ? ["Pick-Up Truck", "Service Van", "Commuter Car"]
+    : ["Chairs", "Tables", "Microphone", "Projector"];
 
   const handleAddItem = (item: AdditionalItem) => {
     const quantity = selectedQuantities[item.id] || 1;
@@ -89,7 +104,6 @@ export function AdditionalNeedsStep() {
         type: "ADD_ITEM",
         payload: { ...item, selectedQuantity: quantity },
       });
-      // Reset quantity after adding
       setSelectedQuantities((prev) => ({ ...prev, [item.id]: 0 }));
     }
   };
@@ -111,9 +125,27 @@ export function AdditionalNeedsStep() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Available Items */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Available Items</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Available Items</h3>
+            <Select
+              value={selectedType}
+              onValueChange={(value) => setSelectedType(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                {itemTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-4">
-            {availableItems.map((item) => (
+            {filteredItems.map((item) => (
               <Card key={item.id} className="overflow-hidden">
                 <CardHeader className="p-0">
                   <img
