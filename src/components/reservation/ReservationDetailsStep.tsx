@@ -26,8 +26,8 @@ import { ReservationDate, ReservationType } from "@/types/reservation";
 export function ReservationDetailsStep() {
   const { formData, dispatch } = useReservationForm();
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [selectedEndDate, setSelectedEndDate] = useState<Date>();
-  const [selectedTime, setSelectedTime] = useState<string>("09:00");
+  const [selectedStartTime, setSelectedStartTime] = useState<string>("09:00");
+  const [selectedEndTime, setSelectedEndTime] = useState<string>("17:00");
   const [repeatSchedule, setRepeatSchedule] = useState<
     "daily" | "weekly" | "biweekly" | undefined
   >();
@@ -37,14 +37,14 @@ export function ReservationDetailsStep() {
       const newDate: ReservationDate = {
         id: nanoid(),
         date: selectedDate,
-        endDate: selectedEndDate,
-        time: selectedTime,
+        startTime: selectedStartTime,
+        endTime: selectedEndTime,
         repeatSchedule,
       };
       dispatch({ type: "ADD_DATE", payload: newDate });
       setSelectedDate(undefined);
-      setSelectedEndDate(undefined);
-      setSelectedTime("09:00");
+      setSelectedStartTime("09:00");
+      setSelectedEndTime("17:00");
       setRepeatSchedule(undefined);
     }
   };
@@ -101,7 +101,7 @@ export function ReservationDetailsStep() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Start Date</label>
+                  <label className="text-sm font-medium">Date</label>
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -110,23 +110,20 @@ export function ReservationDetailsStep() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">End Date (Optional)</label>
-                  <Calendar
-                    mode="single"
-                    selected={selectedEndDate}
-                    onSelect={setSelectedEndDate}
-                    initialFocus
-                    disabled={(date) =>
-                      selectedDate ? date < selectedDate : false
-                    }
+                  <label className="text-sm font-medium">Start Time</label>
+                  <input
+                    type="time"
+                    value={selectedStartTime}
+                    onChange={(e) => setSelectedStartTime(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Time</label>
+                  <label className="text-sm font-medium">End Time</label>
                   <input
                     type="time"
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
+                    value={selectedEndTime}
+                    onChange={(e) => setSelectedEndTime(e.target.value)}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
@@ -169,9 +166,8 @@ export function ReservationDetailsStep() {
               <div className="flex items-center space-x-2">
                 <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                 <span>
-                  {format(date.date, "PPP")}
-                  {date.endDate && ` to ${format(date.endDate, "PPP")}`} at{" "}
-                  {date.time}
+                  {format(date.date, "PPP")} from {date.startTime} to{" "}
+                  {date.endTime}
                   {date.repeatSchedule && ` (Repeats ${date.repeatSchedule})`}
                 </span>
               </div>
