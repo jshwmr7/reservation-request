@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Plus, Filter, X, ToggleLeft, ToggleRight, Check } from "lucide-react";
@@ -173,14 +174,14 @@ export function LocationStep() {
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
             <Select
-              value={selectedType || ""}
+              value={selectedType || "all"}
               onValueChange={(value) => setSelectedType(value as LocationType)}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Location Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Types</SelectItem>
+                <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="Sports Field">Sports Field</SelectItem>
                 <SelectItem value="Baseball Diamond">Baseball Diamond</SelectItem>
                 <SelectItem value="Gymnasium">Gymnasium</SelectItem>
