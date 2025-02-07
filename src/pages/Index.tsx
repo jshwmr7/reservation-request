@@ -1,8 +1,8 @@
-
 import { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
 import { LocationStep } from "@/components/reservation/LocationStep";
+import { AdditionalNeedsStep } from "@/components/reservation/AdditionalNeedsStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -62,6 +62,8 @@ const ReservationForm = () => {
         return <ReservationDetailsStep />;
       case 1:
         return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+      case 2:
+        return <AdditionalNeedsStep />;
       default:
         return (
           <div className="text-center text-muted-foreground">
