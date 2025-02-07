@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ProgressSteps } from "@/components/reservation/ProgressSteps";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
+import { LocationStep } from "@/components/reservation/LocationStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,6 +41,8 @@ const Index = () => {
     switch (currentStep) {
       case 0:
         return <ReservationDetailsStep />;
+      case 1:
+        return <LocationStep />;
       default:
         return (
           <div className="text-center text-muted-foreground">
