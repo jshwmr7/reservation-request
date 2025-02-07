@@ -36,6 +36,7 @@ export interface AdditionalItem {
   rate: number;
   quantityAvailable: number;
   selectedQuantity?: number;
+  excludedDates?: string[];
 }
 
 export interface ReservationFormData {

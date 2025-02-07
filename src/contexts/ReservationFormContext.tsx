@@ -13,6 +13,7 @@ type Action =
   | { type: 'ADD_ITEM'; payload: AdditionalItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_ITEM_QUANTITY'; payload: { id: string; quantity: number } }
+  | { type: 'REMOVE_DATE_FROM_ITEM'; payload: { itemId: string; dateId: string } }
   | { type: 'RESET_FORM' };
 
 interface ReservationFormContextType {
@@ -68,6 +69,19 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
             };
           }
           return location;
+        })
+      };
+    case 'REMOVE_DATE_FROM_ITEM':
+      return {
+        ...state,
+        additionalItems: state.additionalItems.map(item => {
+          if (item.id === action.payload.itemId) {
+            return {
+              ...item,
+              excludedDates: [...(item.excludedDates || []), action.payload.dateId]
+            };
+          }
+          return item;
         })
       };
     case 'ADD_ITEM':

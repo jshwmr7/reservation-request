@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PlusCircle, MinusCircle, Package } from "lucide-react";
+import { PlusCircle, MinusCircle, Package, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -102,7 +102,7 @@ export function AdditionalNeedsStep() {
     if (quantity > 0 && quantity <= item.quantityAvailable) {
       dispatch({
         type: "ADD_ITEM",
-        payload: { ...item, selectedQuantity: quantity },
+        payload: { ...item, selectedQuantity: quantity, excludedDates: [] },
       });
       setSelectedQuantities((prev) => ({ ...prev, [item.id]: 0 }));
     }
@@ -112,10 +112,17 @@ export function AdditionalNeedsStep() {
     dispatch({ type: "REMOVE_ITEM", payload: itemId });
   };
 
+  const handleRemoveDateFromItem = (itemId: string, dateId: string) => {
+    dispatch({
+      type: "REMOVE_DATE_FROM_ITEM",
+      payload: { itemId, dateId },
+    });
+  };
+
   const handleQuantityChange = (itemId: string, value: string) => {
     const quantity = Math.min(
-      Math.max(0, parseInt(value) || 0),
-      availableItems.find((item) => item.id === itemId)?.quantityAvailable || 0
+      Math.max(1, parseInt(value) || 1),
+      availableItems.find((item) => item.id === itemId)?.quantityAvailable || 1
     );
     setSelectedQuantities((prev) => ({ ...prev, [itemId]: quantity }));
   };
@@ -167,9 +174,9 @@ export function AdditionalNeedsStep() {
                   <div className="flex items-center space-x-2">
                     <Input
                       type="number"
-                      min="0"
+                      min="1"
                       max={item.quantityAvailable}
-                      value={selectedQuantities[item.id] || 0}
+                      value={selectedQuantities[item.id] || 1}
                       onChange={(e) =>
                         handleQuantityChange(item.id, e.target.value)
                       }
@@ -181,7 +188,6 @@ export function AdditionalNeedsStep() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleAddItem(item)}
-                    disabled={!selectedQuantities[item.id]}
                   >
                     <PlusCircle className="w-4 h-4 mr-2" />
                     Add
@@ -205,6 +211,29 @@ export function AdditionalNeedsStep() {
                     <p className="text-sm text-muted-foreground">
                       Quantity: {item.selectedQuantity} | ${item.rate}/day each
                     </p>
+                    {/* Excluded Dates */}
+                    <div className="mt-2">
+                      <p className="text-sm font-medium mb-1">Excluded Dates:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.dates.map((date) => {
+                          const isExcluded = item.excludedDates?.includes(date.id);
+                          return (
+                            <Button
+                              key={date.id}
+                              variant={isExcluded ? "destructive" : "outline"}
+                              size="sm"
+                              onClick={() =>
+                                handleRemoveDateFromItem(item.id, date.id)
+                              }
+                              className="flex items-center space-x-1"
+                            >
+                              <Calendar className="w-3 h-3" />
+                              <span>{format(date.date, "MMM d")}</span>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
