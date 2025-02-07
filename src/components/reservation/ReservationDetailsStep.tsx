@@ -23,11 +23,10 @@ import { format } from "date-fns";
 import { nanoid } from "nanoid";
 import { ReservationDate, ReservationType } from "@/types/reservation";
 
-<lov-add-dependency>nanoid@latest</lov-add-dependency>
-
 export function ReservationDetailsStep() {
   const { formData, dispatch } = useReservationForm();
   const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedEndDate, setSelectedEndDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>("09:00");
   const [repeatSchedule, setRepeatSchedule] = useState<
     "daily" | "weekly" | "biweekly" | undefined
@@ -38,11 +37,13 @@ export function ReservationDetailsStep() {
       const newDate: ReservationDate = {
         id: nanoid(),
         date: selectedDate,
+        endDate: selectedEndDate,
         time: selectedTime,
         repeatSchedule,
       };
       dispatch({ type: "ADD_DATE", payload: newDate });
       setSelectedDate(undefined);
+      setSelectedEndDate(undefined);
       setSelectedTime("09:00");
       setRepeatSchedule(undefined);
     }
@@ -99,12 +100,27 @@ export function ReservationDetailsStep() {
                 <DialogTitle>Add Reservation Date</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  initialFocus
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Start Date</label>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">End Date (Optional)</label>
+                  <Calendar
+                    mode="single"
+                    selected={selectedEndDate}
+                    onSelect={setSelectedEndDate}
+                    initialFocus
+                    disabled={(date) =>
+                      selectedDate ? date < selectedDate : false
+                    }
+                  />
+                </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Time</label>
                   <input
@@ -153,9 +169,10 @@ export function ReservationDetailsStep() {
               <div className="flex items-center space-x-2">
                 <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                 <span>
-                  {format(date.date, "PPP")} at {date.time}
-                  {date.repeatSchedule &&
-                    ` (Repeats ${date.repeatSchedule})`}
+                  {format(date.date, "PPP")}
+                  {date.endDate && ` to ${format(date.endDate, "PPP")}`} at{" "}
+                  {date.time}
+                  {date.repeatSchedule && ` (Repeats ${date.repeatSchedule})`}
                 </span>
               </div>
               <Button

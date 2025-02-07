@@ -12,6 +12,7 @@ export type Amenity = 'Parking' | 'Wheel Chair Access' | 'Wi-fi';
 export interface ReservationDate {
   id: string;
   date: Date;
+  endDate?: Date;
   time: string;
   repeatSchedule?: 'daily' | 'weekly' | 'biweekly';
 }
