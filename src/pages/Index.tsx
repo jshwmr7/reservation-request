@@ -1,11 +1,11 @@
 
 import { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
-import { ProgressSteps } from "@/components/reservation/ProgressSteps";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
 import { LocationStep } from "@/components/reservation/LocationStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 const steps = [
   "Reservation Details",
@@ -52,6 +52,8 @@ const Index = () => {
     }
   };
 
+  const progressPercentage = (currentStep / (steps.length - 1)) * 100;
+
   return (
     <ReservationFormProvider>
       <div className="min-h-screen bg-[#f3f3f3] font-figtree">
@@ -91,7 +93,12 @@ const Index = () => {
               </p>
             </motion.div>
 
-            <ProgressSteps currentStep={currentStep} steps={steps} />
+            <div className="max-w-2xl mx-auto mb-8">
+              <Progress value={progressPercentage} className="h-2" />
+              <p className="text-sm text-muted-foreground mt-2 text-center">
+                Step {currentStep + 1} of {steps.length}: {steps[currentStep]}
+              </p>
+            </div>
 
             <motion.div
               key={currentStep}

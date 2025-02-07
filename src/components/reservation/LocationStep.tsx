@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, X } from "lucide-react";
 import { LocationType, Location as LocationData, Amenity } from "@/types/reservation";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -66,6 +66,10 @@ export function LocationStep() {
     );
   };
 
+  const clearTypeSelection = () => {
+    setSelectedType(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -77,7 +81,7 @@ export function LocationStep() {
       </div>
 
       <div className="flex gap-4 mb-6">
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <Select
             value={selectedType || ""}
             onValueChange={(value) => setSelectedType(value as LocationType)}
@@ -92,6 +96,14 @@ export function LocationStep() {
               <SelectItem value="Classroom">Classroom</SelectItem>
             </SelectContent>
           </Select>
+          {selectedType && (
+            <button
+              onClick={clearTypeSelection}
+              className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
