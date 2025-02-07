@@ -4,7 +4,7 @@ import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
 import { Button } from "@/components/ui/button";
 import { nanoid } from "nanoid";
-import { format } from "date-fns"; // Added this import
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -103,7 +103,7 @@ export function AdditionalNeedsStep() {
     if (quantity > 0 && quantity <= item.quantityAvailable) {
       dispatch({
         type: "ADD_ITEM",
-        payload: { ...item, selectedQuantity: quantity, excludedDates: [] },
+        payload: { ...item, selectedQuantity: quantity, includedDates: formData.dates.map(date => date.id) },
       });
       setSelectedQuantities((prev) => ({ ...prev, [item.id]: 0 }));
     }
@@ -212,16 +212,16 @@ export function AdditionalNeedsStep() {
                     <p className="text-sm text-muted-foreground">
                       Quantity: {item.selectedQuantity} | ${item.rate}/day each
                     </p>
-                    {/* Excluded Dates */}
+                    {/* Included Dates */}
                     <div className="mt-2">
-                      <p className="text-sm font-medium mb-1">Excluded Dates:</p>
+                      <p className="text-sm font-medium mb-1">Included Dates:</p>
                       <div className="flex flex-wrap gap-2">
                         {formData.dates.map((date) => {
-                          const isExcluded = item.excludedDates?.includes(date.id);
+                          const isIncluded = item.includedDates?.includes(date.id);
                           return (
                             <Button
                               key={date.id}
-                              variant={isExcluded ? "destructive" : "outline"}
+                              variant={isIncluded ? "default" : "outline"}
                               size="sm"
                               onClick={() =>
                                 handleRemoveDateFromItem(item.id, date.id)

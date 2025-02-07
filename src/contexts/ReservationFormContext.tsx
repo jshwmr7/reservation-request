@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer } from 'react';
 import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate } from '@/types/reservation';
 
@@ -71,23 +72,13 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
           return location;
         })
       };
-    case 'REMOVE_DATE_FROM_ITEM':
-      return {
-        ...state,
-        additionalItems: state.additionalItems.map(item => {
-          if (item.id === action.payload.itemId) {
-            return {
-              ...item,
-              excludedDates: [...(item.excludedDates || []), action.payload.dateId]
-            };
-          }
-          return item;
-        })
-      };
     case 'ADD_ITEM':
       return {
         ...state,
-        additionalItems: [...state.additionalItems, action.payload],
+        additionalItems: [...state.additionalItems, {
+          ...action.payload,
+          includedDates: state.dates.map(date => date.id)
+        }],
       };
     case 'REMOVE_ITEM':
       return {
@@ -104,6 +95,19 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
             ? { ...item, selectedQuantity: action.payload.quantity }
             : item
         ),
+      };
+    case 'REMOVE_DATE_FROM_ITEM':
+      return {
+        ...state,
+        additionalItems: state.additionalItems.map(item => {
+          if (item.id === action.payload.itemId) {
+            return {
+              ...item,
+              includedDates: item.includedDates.filter(dateId => dateId !== action.payload.dateId)
+            };
+          }
+          return item;
+        })
       };
     case 'RESET_FORM':
       return initialState;
