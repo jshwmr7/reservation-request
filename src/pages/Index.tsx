@@ -15,7 +15,7 @@ const steps = [
   "Summary",
 ];
 
-const Index = () => {
+const ReservationForm = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const { toast } = useToast();
   const { formData } = useReservationForm();
@@ -75,93 +75,99 @@ const Index = () => {
   const progressPercentage = (currentStep / (visibleSteps.length - 1)) * 100;
 
   return (
-    <ReservationFormProvider>
-      <div className="min-h-screen bg-[#f3f3f3] font-figtree">
-        <div className="flex">
-          {/* Sidebar */}
-          <div className="w-64 min-h-screen bg-sidebar-background text-sidebar-foreground p-6">
-            <div className="mb-8">
-              <img 
-                src="/lovable-uploads/4a7db52c-f46c-4061-9c89-deeb179b255f.png" 
-                alt="FMX Logo" 
-                className="w-32 mx-auto"
-              />
-            </div>
-            <nav className="space-y-2">
-              {["1-to-1 Asset Manager", "FMX Maps", "Reservation Finder", "Calendar", "To-Do List", "Work List"].map((item) => (
-                <button
-                  key={item}
-                  className="w-full text-left px-4 py-2 rounded hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
-                >
-                  {item}
-                </button>
-              ))}
-            </nav>
+    <div className="min-h-screen bg-[#f3f3f3] font-figtree">
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-64 min-h-screen bg-sidebar-background text-sidebar-foreground p-6">
+          <div className="mb-8">
+            <img 
+              src="/lovable-uploads/4a7db52c-f46c-4061-9c89-deeb179b255f.png" 
+              alt="FMX Logo" 
+              className="w-32 mx-auto"
+            />
+          </div>
+          <nav className="space-y-2">
+            {["1-to-1 Asset Manager", "FMX Maps", "Reservation Finder", "Calendar", "To-Do List", "Work List"].map((item) => (
+              <button
+                key={item}
+                className="w-full text-left px-4 py-2 rounded hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 p-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl font-bold mb-4 text-primary-dark">Make a Reservation</h1>
+            <p className="text-muted-foreground">
+              Complete the form below to submit your reservation request
+            </p>
+          </motion.div>
+
+          <div className="max-w-2xl mx-auto mb-8">
+            <Progress value={progressPercentage} className="h-2" />
+            <p className="text-sm text-muted-foreground mt-2 text-center">
+              {visibleSteps[currentStep]}
+            </p>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 p-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-center mb-12"
-            >
-              <h1 className="text-4xl font-bold mb-4 text-primary-dark">Make a Reservation</h1>
-              <p className="text-muted-foreground">
-                Complete the form below to submit your reservation request
-              </p>
-            </motion.div>
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-lg shadow-lg p-8 mb-8"
+          >
+            <div className="min-h-[400px]">{renderStep()}</div>
 
-            <div className="max-w-2xl mx-auto mb-8">
-              <Progress value={progressPercentage} className="h-2" />
-              <p className="text-sm text-muted-foreground mt-2 text-center">
-                {visibleSteps[currentStep]}
-              </p>
-            </div>
-
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-lg shadow-lg p-8 mb-8"
-            >
-              <div className="min-h-[400px]">{renderStep()}</div>
-
-              <div className="flex justify-between mt-8">
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={handleBack}
+                disabled={currentStep === 0}
+                className={`px-6 py-2 rounded-lg transition-all duration-200 ${
+                  currentStep === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-muted"
+                }`}
+              >
+                Back
+              </button>
+              {currentStep === visibleSteps.length - 1 ? (
                 <button
-                  onClick={handleBack}
-                  disabled={currentStep === 0}
-                  className={`px-6 py-2 rounded-lg transition-all duration-200 ${
-                    currentStep === 0
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-muted"
-                  }`}
+                  onClick={handleSubmit}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
                 >
-                  Back
+                  Submit Reservation
                 </button>
-                {currentStep === visibleSteps.length - 1 ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
-                  >
-                    Submit Reservation
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleNext}
-                    className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
-                  >
-                    Continue
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          </div>
+              ) : (
+                <button
+                  onClick={handleNext}
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
+                >
+                  Continue
+                </button>
+              )}
+            </div>
+          </motion.div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <ReservationFormProvider>
+      <ReservationForm />
     </ReservationFormProvider>
   );
 };
