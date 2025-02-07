@@ -79,6 +79,13 @@ export function LocationStep() {
     dispatch({ type: "REMOVE_LOCATION", payload: locationId });
   };
 
+  const handleDateRemove = (locationId: string, dateId: string) => {
+    dispatch({ 
+      type: "REMOVE_DATE_FROM_LOCATION", 
+      payload: { locationId, dateId } 
+    });
+  };
+
   const isLocationSelected = (locationId: string) => {
     return formData.locations.some(loc => loc.id === locationId);
   };
@@ -94,22 +101,39 @@ export function LocationStep() {
           <h3 className="text-lg font-semibold mb-4">Selected Locations</h3>
           <div className="space-y-4">
             {formData.locations.map((location) => (
-              <div key={location.id} className="flex items-center justify-between bg-background p-4 rounded-lg">
-                <div>
-                  <h4 className="font-medium">{location.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Available dates: {formData.dates.map(date => format(date.date, 'MMM d, yyyy')).join(', ')}
-                  </p>
-                  <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
+              <div key={location.id} className="flex flex-col bg-background p-4 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 className="font-medium">{location.name}</h4>
+                    <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleLocationRemove(location.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleLocationRemove(location.id)}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="pl-4 space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Reserved Dates:</p>
+                  {formData.dates.map((date) => (
+                    <div key={date.id} className="flex items-center justify-between bg-muted/50 p-2 rounded">
+                      <span className="text-sm">
+                        {format(date.date, 'MMM d, yyyy')} ({date.startTime} - {date.endTime})
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDateRemove(location.id, date.id)}
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

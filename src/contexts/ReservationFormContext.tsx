@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer } from 'react';
 import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate } from '@/types/reservation';
 
@@ -10,6 +9,7 @@ type Action =
   | { type: 'UPDATE_DATE'; payload: ReservationDate }
   | { type: 'ADD_LOCATION'; payload: Location }
   | { type: 'REMOVE_LOCATION'; payload: string }
+  | { type: 'REMOVE_DATE_FROM_LOCATION'; payload: { locationId: string; dateId: string } }
   | { type: 'ADD_ITEM'; payload: AdditionalItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_ITEM_QUANTITY'; payload: { id: string; quantity: number } }
@@ -56,6 +56,19 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
       return {
         ...state,
         locations: state.locations.filter((loc) => loc.id !== action.payload),
+      };
+    case 'REMOVE_DATE_FROM_LOCATION':
+      return {
+        ...state,
+        locations: state.locations.map(location => {
+          if (location.id === action.payload.locationId) {
+            return {
+              ...location,
+              excludedDates: [...(location.excludedDates || []), action.payload.dateId]
+            };
+          }
+          return location;
+        })
       };
     case 'ADD_ITEM':
       return {
