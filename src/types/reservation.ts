@@ -25,6 +25,7 @@ export interface Location {
   rate: number;
   amenities: Amenity[];
   availability: 'all' | 'some' | 'none';
+  excludedDates?: string[];
 }
 
 export interface AdditionalItem {
