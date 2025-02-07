@@ -1,12 +1,18 @@
-
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Plus, Filter, X, ToggleLeft, ToggleRight, Check } from "lucide-react";
+import { Plus, Filter, X, ToggleLeft, ToggleRight, MapPin } from "lucide-react";
 import { LocationType, Location as LocationData, Amenity } from "@/types/reservation";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { format } from "date-fns";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function LocationStep() {
   const { formData, dispatch } = useReservationForm();
@@ -110,32 +116,23 @@ export function LocationStep() {
   const allAmenities: Amenity[] = ["Parking", "Wheel Chair Access", "Wi-fi"];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-primary-dark">Selected Locations</h2>
       </div>
 
-      <div className="space-y-6">
-        {formData.locations.length > 0 && (
-          <div className="space-y-4">
-            {formData.locations.map((location) => (
-              <div key={location.id} className="flex flex-col bg-background p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <h4 className="font-medium">{location.name}</h4>
-                    <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLocationRemove(location.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="pl-4 space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground mb-2">Reserved Dates:</p>
+      <div className="space-y-4">
+        {formData.locations.map((location) => (
+          <Card key={location.id} className="overflow-hidden">
+            <div className="flex items-center p-4">
+              <MapPin className="w-8 h-8 text-muted-foreground mr-4" />
+              <div className="flex-1">
+                <h4 className="font-medium">{location.name}</h4>
+                <p className="text-sm text-muted-foreground">
+                  Rate: ${location.rate}/hour
+                </p>
+                <div className="mt-2">
+                  <p className="text-sm font-medium mb-1">Reserved Dates:</p>
                   <div className="flex flex-wrap gap-2">
                     {formData.dates.map((date) => {
                       const isExcluded = location.excludedDates?.includes(date.id);
@@ -165,133 +162,139 @@ export function LocationStep() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleLocationRemove(location.id)}
+              >
+                <X className="w-4 h-4 text-destructive" />
+              </Button>
+            </div>
+          </Card>
+        ))}
         {formData.locations.length === 0 && (
           <div className="text-center p-8 border-2 border-dashed rounded-lg">
             <p className="text-muted-foreground">No locations selected</p>
           </div>
         )}
+      </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-primary-dark">Available Locations</h2>
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filters
-              </Button>
-              <Select
-                value={selectedType || "all"}
-                onValueChange={(value) => setSelectedType(value as LocationType)}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Location Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Sports Field">Sports Field</SelectItem>
-                  <SelectItem value="Baseball Diamond">Baseball Diamond</SelectItem>
-                  <SelectItem value="Gymnasium">Gymnasium</SelectItem>
-                  <SelectItem value="Classroom">Classroom</SelectItem>
-                </SelectContent>
-              </Select>
-              {selectedType && (
-                <button
-                  onClick={clearTypeSelection}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-primary-dark">Available Locations</h2>
+        
+        <div className="flex items-center gap-4">
+          <Select
+            value={selectedType || "all"}
+            onValueChange={(value) => setSelectedType(value as LocationType)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Location Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="Sports Field">Sports Field</SelectItem>
+              <SelectItem value="Baseball Diamond">Baseball Diamond</SelectItem>
+              <SelectItem value="Gymnasium">Gymnasium</SelectItem>
+              <SelectItem value="Classroom">Classroom</SelectItem>
+            </SelectContent>
+          </Select>
+          {selectedType && (
+            <button
+              onClick={clearTypeSelection}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2"
+          >
+            <Filter className="w-4 h-4" />
+            Amenities
+          </Button>
+        </div>
+
+        {showFilters && (
+          <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+            <h3 className="font-medium mb-2">Filter by Amenities</h3>
+            <div className="flex flex-wrap gap-4">
+              {allAmenities.map((amenity) => (
+                <div key={amenity} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={amenity}
+                    checked={selectedAmenities.includes(amenity)}
+                    onCheckedChange={() => handleAmenityToggle(amenity)}
+                  />
+                  <label
+                    htmlFor={amenity}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {amenity}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
+        )}
 
-          {showFilters && (
-            <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-              <h3 className="font-medium mb-2">Amenities</h3>
-              <div className="flex flex-wrap gap-4">
-                {allAmenities.map((amenity) => (
-                  <div key={amenity} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={amenity}
-                      checked={selectedAmenities.includes(amenity)}
-                      onCheckedChange={() => handleAmenityToggle(amenity)}
-                    />
-                    <label
-                      htmlFor={amenity}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredLocations.map((location) => (
+            <div
+              key={location.id}
+              className={`bg-white rounded-lg shadow-md overflow-hidden border ${
+                isLocationSelected(location.id) ? 'border-primary' : 'border-border'
+              } relative`}
+            >
+              {isLocationSelected(location.id) && (
+                <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
+                  <Check className="w-4 h-4" />
+                </div>
+              )}
+              <img
+                src={location.image}
+                alt={location.name}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
+                <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
+                <p className="font-medium mb-2">${location.rate}/hour</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {location.amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
                     >
                       {amenity}
-                    </label>
-                  </div>
-                ))}
+                    </span>
+                  ))}
+                </div>
+                <div className={`text-sm mb-4 ${
+                  location.availability === 'all' 
+                    ? 'text-green-600' 
+                    : location.availability === 'some' 
+                      ? 'text-yellow-600' 
+                      : 'text-red-600'
+                }`}>
+                  {location.availability === 'all' 
+                    ? 'Available for all dates'
+                    : location.availability === 'some'
+                      ? 'Available for some dates'
+                      : 'Not available for selected dates'}
+                </div>
+                <Button
+                  onClick={() => isLocationSelected(location.id) ? handleLocationRemove(location.id) : handleLocationSelect(location)}
+                  variant={isLocationSelected(location.id) ? "destructive" : "default"}
+                  className="w-full"
+                >
+                  {isLocationSelected(location.id) ? "Remove Location" : "Select Location"}
+                </Button>
               </div>
             </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredLocations.map((location) => (
-              <div
-                key={location.id}
-                className={`bg-white rounded-lg shadow-md overflow-hidden border ${
-                  isLocationSelected(location.id) ? 'border-primary' : 'border-border'
-                } relative`}
-              >
-                {isLocationSelected(location.id) && (
-                  <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
-                    <Check className="w-4 h-4" />
-                  </div>
-                )}
-                <img
-                  src={location.image}
-                  alt={location.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
-                  <p className="font-medium mb-2">${location.rate}/hour</p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {location.amenities.map((amenity) => (
-                      <span
-                        key={amenity}
-                        className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
-                      >
-                        {amenity}
-                      </span>
-                    ))}
-                  </div>
-                  <div className={`text-sm mb-4 ${
-                    location.availability === 'all' 
-                      ? 'text-green-600' 
-                      : location.availability === 'some' 
-                        ? 'text-yellow-600' 
-                        : 'text-red-600'
-                  }`}>
-                    {location.availability === 'all' 
-                      ? 'Available for all dates'
-                      : location.availability === 'some'
-                        ? 'Available for some dates'
-                      : 'Not available for selected dates'}
-                  </div>
-                  <Button
-                    onClick={() => isLocationSelected(location.id) ? handleLocationRemove(location.id) : handleLocationSelect(location)}
-                    variant={isLocationSelected(location.id) ? "destructive" : "default"}
-                    className="w-full"
-                  >
-                    {isLocationSelected(location.id) ? "Remove Location" : "Select Location"}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
     </div>
