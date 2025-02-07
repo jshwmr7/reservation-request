@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Plus, Filter, X, ToggleLeft, ToggleRight, MapPin } from "lucide-react";
+import { Plus, Filter, X, ToggleLeft, ToggleRight, MapPin, Check } from "lucide-react";
 import { LocationType, Location as LocationData, Amenity } from "@/types/reservation";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
