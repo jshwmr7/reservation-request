@@ -4,6 +4,7 @@ import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
 import { Button } from "@/components/ui/button";
 import { nanoid } from "nanoid";
+import { format } from "date-fns"; // Added this import
 import {
   Card,
   CardContent,
