@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useReducer } from 'react';
 import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate } from '@/types/reservation';
 
@@ -24,7 +25,7 @@ interface ReservationFormContextType {
 }
 
 const initialState: ReservationFormData = {
-  type: 'Vehicle Reservation',
+  type: '' as ReservationType, // Start with empty type
   description: '',
   dates: [],
   locations: [],

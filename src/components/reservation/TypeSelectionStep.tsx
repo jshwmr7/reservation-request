@@ -9,6 +9,7 @@ export function TypeSelectionStep() {
 
   const handleTypeSelect = (type: ReservationType) => {
     dispatch({ type: "SET_TYPE", payload: type });
+    // The parent component will handle the step advancement based on type being set
   };
 
   return (

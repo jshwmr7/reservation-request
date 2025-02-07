@@ -23,6 +23,13 @@ const ReservationForm = () => {
   const { toast } = useToast();
   const { formData } = useReservationForm();
 
+  // Watch for type changes and advance to next step
+  React.useEffect(() => {
+    if (formData.type && currentStep === 0) {
+      handleNext();
+    }
+  }, [formData.type]);
+
   const handleNext = () => {
     if (currentStep < getVisibleSteps().length - 1) {
       // If current step is 1 and it's a vehicle reservation, skip to step 3
