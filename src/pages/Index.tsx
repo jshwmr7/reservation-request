@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ProgressSteps } from "@/components/reservation/ProgressSteps";
+import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -35,6 +36,19 @@ const Index = () => {
     });
   };
 
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return <ReservationDetailsStep />;
+      default:
+        return (
+          <div className="text-center text-muted-foreground">
+            Step {currentStep + 1} content coming in the next iteration
+          </div>
+        );
+    }
+  };
+
   return (
     <ReservationFormProvider>
       <div className="min-h-screen bg-gradient-to-b from-background to-muted p-8">
@@ -61,12 +75,7 @@ const Index = () => {
             transition={{ duration: 0.3 }}
             className="bg-card rounded-lg shadow-lg p-8 mb-8"
           >
-            <div className="min-h-[400px]">
-              {/* Step content will go here */}
-              <div className="text-center text-muted-foreground">
-                Step {currentStep + 1} content coming in the next iteration
-              </div>
-            </div>
+            <div className="min-h-[400px]">{renderStep()}</div>
 
             <div className="flex justify-between mt-8">
               <button
