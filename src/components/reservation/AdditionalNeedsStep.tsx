@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
@@ -12,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PlusCircle, MinusCircle, Package, Calendar } from "lucide-react";
+import { PlusCircle, MinusCircle, Package, ToggleLeft, ToggleRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -128,10 +127,26 @@ export function AdditionalNeedsStep() {
     setSelectedQuantities((prev) => ({ ...prev, [itemId]: quantity }));
   };
 
+  const handleDateToggle = (itemId: string, dateId: string) => {
+    const item = formData.additionalItems.find(item => item.id === itemId);
+    const isIncluded = item?.includedDates?.includes(dateId);
+    
+    if (isIncluded) {
+      dispatch({
+        type: "REMOVE_DATE_FROM_ITEM",
+        payload: { itemId, dateId },
+      });
+    } else {
+      dispatch({
+        type: "ADD_DATE_TO_ITEM",
+        payload: { itemId, dateId },
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Available Items */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Available Items</h3>
@@ -199,7 +214,6 @@ export function AdditionalNeedsStep() {
           </div>
         </div>
 
-        {/* Selected Items */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Selected Items</h3>
           <div className="space-y-4">
@@ -212,23 +226,28 @@ export function AdditionalNeedsStep() {
                     <p className="text-sm text-muted-foreground">
                       Quantity: {item.selectedQuantity} | ${item.rate}/day each
                     </p>
-                    {/* Included Dates */}
                     <div className="mt-2">
-                      <p className="text-sm font-medium mb-1">Included Dates:</p>
+                      <p className="text-sm font-medium mb-1">Selected Dates:</p>
                       <div className="flex flex-wrap gap-2">
                         {formData.dates.map((date) => {
                           const isIncluded = item.includedDates?.includes(date.id);
                           return (
-                            <Button
+                            <Button 
                               key={date.id}
-                              variant={isIncluded ? "default" : "outline"}
+                              variant="outline"
                               size="sm"
-                              onClick={() =>
-                                handleRemoveDateFromItem(item.id, date.id)
-                              }
-                              className="flex items-center space-x-1"
+                              onClick={() => handleDateToggle(item.id, date.id)}
+                              className={`flex items-center gap-2 transition-colors ${
+                                isIncluded 
+                                  ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                                  : 'hover:bg-muted'
+                              }`}
                             >
-                              <Calendar className="w-3 h-3" />
+                              {isIncluded ? (
+                                <ToggleRight className="w-4 h-4" />
+                              ) : (
+                                <ToggleLeft className="w-4 h-4" />
+                              )}
                               <span>{format(date.date, "MMM d")}</span>
                             </Button>
                           );

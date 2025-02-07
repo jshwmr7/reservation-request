@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Plus, Filter, X, Check } from "lucide-react";
+import { Plus, Filter, X, ToggleLeft, ToggleRight } from "lucide-react";
 import { LocationType, Location as LocationData, Amenity } from "@/types/reservation";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -13,7 +12,6 @@ export function LocationStep() {
   const [selectedAmenities, setSelectedAmenities] = useState<Amenity[]>([]);
   const [selectedType, setSelectedType] = useState<LocationType | null>(null);
 
-  // Skip this step for vehicle reservations
   if (formData.type === "Vehicle Reservation") {
     return null;
   }
@@ -86,6 +84,23 @@ export function LocationStep() {
     });
   };
 
+  const handleDateToggle = (locationId: string, dateId: string) => {
+    const location = formData.locations.find(loc => loc.id === locationId);
+    const isExcluded = location?.excludedDates?.includes(dateId);
+    
+    if (isExcluded) {
+      dispatch({
+        type: "ADD_DATE_TO_LOCATION",
+        payload: { locationId, dateId },
+      });
+    } else {
+      dispatch({
+        type: "REMOVE_DATE_FROM_LOCATION",
+        payload: { locationId, dateId },
+      });
+    }
+  };
+
   const isLocationSelected = (locationId: string) => {
     return formData.locations.some(loc => loc.id === locationId);
   };
@@ -118,21 +133,31 @@ export function LocationStep() {
                 </div>
                 <div className="pl-4 space-y-2">
                   <p className="text-sm font-medium text-muted-foreground mb-2">Reserved Dates:</p>
-                  {formData.dates.map((date) => (
-                    <div key={date.id} className="flex items-center justify-between bg-muted/50 p-2 rounded">
-                      <span className="text-sm">
-                        {format(date.date, 'MMM d, yyyy')} ({date.startTime} - {date.endTime})
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDateRemove(location.id, date.id)}
-                        className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.dates.map((date) => {
+                      const isExcluded = location.excludedDates?.includes(date.id);
+                      return (
+                        <Button
+                          key={date.id}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDateToggle(location.id, date.id)}
+                          className={`flex items-center gap-2 transition-colors ${
+                            !isExcluded 
+                              ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                              : 'hover:bg-muted'
+                          }`}
+                        >
+                          {!isExcluded ? (
+                            <ToggleRight className="w-4 h-4" />
+                          ) : (
+                            <ToggleLeft className="w-4 h-4" />
+                          )}
+                          <span>{format(date.date, "MMM d, yyyy")}</span>
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             ))}

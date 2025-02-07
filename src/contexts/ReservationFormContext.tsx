@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer } from 'react';
 import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate } from '@/types/reservation';
 
@@ -11,10 +10,12 @@ type Action =
   | { type: 'ADD_LOCATION'; payload: Location }
   | { type: 'REMOVE_LOCATION'; payload: string }
   | { type: 'REMOVE_DATE_FROM_LOCATION'; payload: { locationId: string; dateId: string } }
+  | { type: 'ADD_DATE_TO_LOCATION'; payload: { locationId: string; dateId: string } }
   | { type: 'ADD_ITEM'; payload: AdditionalItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_ITEM_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'REMOVE_DATE_FROM_ITEM'; payload: { itemId: string; dateId: string } }
+  | { type: 'ADD_DATE_TO_ITEM'; payload: { itemId: string; dateId: string } }
   | { type: 'RESET_FORM' };
 
 interface ReservationFormContextType {
@@ -72,6 +73,19 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
           return location;
         })
       };
+    case 'ADD_DATE_TO_LOCATION':
+      return {
+        ...state,
+        locations: state.locations.map(location => {
+          if (location.id === action.payload.locationId) {
+            return {
+              ...location,
+              excludedDates: (location.excludedDates || []).filter(dateId => dateId !== action.payload.dateId)
+            };
+          }
+          return location;
+        })
+      };
     case 'ADD_ITEM':
       return {
         ...state,
@@ -104,6 +118,19 @@ function reservationFormReducer(state: ReservationFormData, action: Action): Res
             return {
               ...item,
               includedDates: item.includedDates.filter(dateId => dateId !== action.payload.dateId)
+            };
+          }
+          return item;
+        })
+      };
+    case 'ADD_DATE_TO_ITEM':
+      return {
+        ...state,
+        additionalItems: state.additionalItems.map(item => {
+          if (item.id === action.payload.itemId) {
+            return {
+              ...item,
+              includedDates: [...(item.includedDates || []), action.payload.dateId]
             };
           }
           return item;
