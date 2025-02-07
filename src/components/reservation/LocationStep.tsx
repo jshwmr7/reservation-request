@@ -1,14 +1,15 @@
 
 import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Plus, Filter, X } from "lucide-react";
+import { Plus, Filter, X, Check } from "lucide-react";
 import { LocationType, Location as LocationData, Amenity } from "@/types/reservation";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
+import { format } from "date-fns";
 
 export function LocationStep() {
-  const { formData } = useReservationForm();
+  const { formData, dispatch } = useReservationForm();
   const [selectedAmenities, setSelectedAmenities] = useState<Amenity[]>([]);
   const [selectedType, setSelectedType] = useState<LocationType | null>(null);
 
@@ -70,15 +71,50 @@ export function LocationStep() {
     setSelectedType(null);
   };
 
+  const handleLocationSelect = (location: LocationData) => {
+    dispatch({ type: "ADD_LOCATION", payload: location });
+  };
+
+  const handleLocationRemove = (locationId: string) => {
+    dispatch({ type: "REMOVE_LOCATION", payload: locationId });
+  };
+
+  const isLocationSelected = (locationId: string) => {
+    return formData.locations.some(loc => loc.id === locationId);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-primary-dark">Reserved Location(s)</h2>
-        <Button onClick={() => {}} className="bg-primary hover:bg-primary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Location
-        </Button>
       </div>
+
+      {formData.locations.length > 0 && (
+        <div className="bg-muted p-4 rounded-lg mb-6">
+          <h3 className="text-lg font-semibold mb-4">Selected Locations</h3>
+          <div className="space-y-4">
+            {formData.locations.map((location) => (
+              <div key={location.id} className="flex items-center justify-between bg-background p-4 rounded-lg">
+                <div>
+                  <h4 className="font-medium">{location.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Available dates: {formData.dates.map(date => format(date.date, 'MMM d, yyyy')).join(', ')}
+                  </p>
+                  <p className="text-sm text-muted-foreground">${location.rate}/hour</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleLocationRemove(location.id)}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-4 mb-6">
         <div className="flex-1 relative">
@@ -122,46 +158,63 @@ export function LocationStep() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredLocations.map((location) => (
-          <div
-            key={location.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden border border-border"
-          >
-            <img
-              src={location.image}
-              alt={location.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
-              <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
-              <p className="font-medium mb-2">${location.rate}/hour</p>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {location.amenities.map((amenity) => (
-                  <span
-                    key={amenity}
-                    className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
-                  >
-                    {amenity}
-                  </span>
-                ))}
-              </div>
-              <div className={`text-sm ${
-                location.availability === 'all' 
-                  ? 'text-green-600' 
-                  : location.availability === 'some' 
-                    ? 'text-yellow-600' 
-                    : 'text-red-600'
-              }`}>
-                {location.availability === 'all' 
-                  ? 'Available for all dates'
-                  : location.availability === 'some'
-                    ? 'Available for some dates'
-                    : 'Not available for selected dates'}
+        {filteredLocations.map((location) => {
+          const selected = isLocationSelected(location.id);
+          return (
+            <div
+              key={location.id}
+              className={`bg-white rounded-lg shadow-md overflow-hidden border ${
+                selected ? 'border-primary' : 'border-border'
+              } relative`}
+            >
+              {selected && (
+                <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-full">
+                  <Check className="w-4 h-4" />
+                </div>
+              )}
+              <img
+                src={location.image}
+                alt={location.name}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2">{location.name}</h3>
+                <p className="text-sm text-muted-foreground mb-2">{location.type}</p>
+                <p className="font-medium mb-2">${location.rate}/hour</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {location.amenities.map((amenity) => (
+                    <span
+                      key={amenity}
+                      className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-full"
+                    >
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+                <div className={`text-sm mb-4 ${
+                  location.availability === 'all' 
+                    ? 'text-green-600' 
+                    : location.availability === 'some' 
+                      ? 'text-yellow-600' 
+                      : 'text-red-600'
+                }`}>
+                  {location.availability === 'all' 
+                    ? 'Available for all dates'
+                    : location.availability === 'some'
+                      ? 'Available for some dates'
+                      : 'Not available for selected dates'}
+                </div>
+                <Button
+                  onClick={() => selected ? handleLocationRemove(location.id) : handleLocationSelect(location)}
+                  variant={selected ? "destructive" : "default"}
+                  className="w-full"
+                >
+                  {selected ? "Remove Location" : "Select Location"}
+                </Button>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        )}
       </div>
     </div>
   );
