@@ -23,7 +23,6 @@ const ReservationForm = () => {
   const { toast } = useToast();
   const { formData } = useReservationForm();
 
-  // Watch for type changes and advance to next step
   React.useEffect(() => {
     if (formData.type && currentStep === 0) {
       handleNext();
@@ -32,7 +31,6 @@ const ReservationForm = () => {
 
   const handleNext = () => {
     if (currentStep < getVisibleSteps().length - 1) {
-      // If current step is 1 and it's a vehicle reservation, skip to step 3
       if (currentStep === 1 && formData.type === "Vehicle Reservation") {
         setCurrentStep(3);
       } else {
@@ -43,7 +41,6 @@ const ReservationForm = () => {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      // If we're on step 3 and it's a vehicle reservation, go back to step 1
       if (currentStep === 3 && formData.type === "Vehicle Reservation") {
         setCurrentStep(1);
       } else {
@@ -140,17 +137,15 @@ const ReservationForm = () => {
             <div className="min-h-[400px]">{renderStep()}</div>
 
             <div className="flex justify-between mt-8">
-              <button
-                onClick={handleBack}
-                disabled={currentStep === 0}
-                className={`px-6 py-2 rounded-lg transition-all duration-200 ${
-                  currentStep === 0
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-muted"
-                }`}
-              >
-                Back
-              </button>
+              {currentStep > 0 && (
+                <button
+                  onClick={handleBack}
+                  className="px-6 py-2 rounded-lg transition-all duration-200 hover:bg-muted"
+                >
+                  Back
+                </button>
+              )}
+              {currentStep === 0 && <div></div>}
               {currentStep === visibleSteps.length - 1 ? (
                 <button
                   onClick={handleSubmit}
