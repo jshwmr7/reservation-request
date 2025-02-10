@@ -37,7 +37,7 @@ export function LocationStep() {
       id: "1",
       type: "Sports Field",
       name: "Main Soccer Field",
-      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      image: "/lovable-uploads/f26293ed-cc74-4a89-9eb7-7f80389154da.png",
       rate: 100,
       amenities: ["Parking", "Wheel Chair Access"],
       availability: "all"
@@ -46,7 +46,7 @@ export function LocationStep() {
       id: "2",
       type: "Gymnasium",
       name: "Central Gym",
-      image: "https://images.unsplash.com/photo-1473177104440-ffee2f376098",
+      image: "/lovable-uploads/1c595780-53a2-4915-9868-a8a2f93ce64d.png",
       rate: 150,
       amenities: ["Parking", "Wheel Chair Access", "Wi-fi"],
       availability: "some"
@@ -55,7 +55,7 @@ export function LocationStep() {
       id: "3",
       type: "Classroom",
       name: "Room 101",
-      image: "https://images.unsplash.com/photo-1487958449943-2429e8be8625",
+      image: "/lovable-uploads/d91c2e35-41fe-4453-b1bc-b427ef520559.png",
       rate: 50,
       amenities: ["Wi-fi", "Wheel Chair Access"],
       availability: "none"
