@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
@@ -37,31 +38,26 @@ const ReservationForm = () => {
     return steps;
   };
 
-  const getAdjustedStep = (step: number) => {
-    if (formData.type === "Vehicle Reservation" && step >= 2) {
-      return step - 1;
-    }
-    return step;
-  };
-
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      const nextStep = currentStep + 1;
-      if (formData.type === "Vehicle Reservation" && nextStep === 2) {
-        setCurrentStep(3);
-      } else {
-        setCurrentStep(nextStep);
-      }
+    const visibleSteps = getVisibleSteps();
+    if (currentStep < visibleSteps.length - 1) {
+      const nextStep = visibleSteps[visibleSteps.indexOf(steps[currentStep]) + 1];
+      const nextStepIndex = steps.indexOf(nextStep);
+      setCurrentStep(nextStepIndex);
     }
   };
 
   const handleBack = () => {
+    const visibleSteps = getVisibleSteps();
     if (currentStep > 0) {
-      const previousStep = currentStep - 1;
-      if (formData.type === "Vehicle Reservation" && currentStep === 3) {
-        setCurrentStep(1);
+      const currentVisibleStep = steps[currentStep];
+      const currentVisibleIndex = visibleSteps.indexOf(currentVisibleStep);
+      if (currentVisibleIndex > 0) {
+        const previousStep = visibleSteps[currentVisibleIndex - 1];
+        const previousStepIndex = steps.indexOf(previousStep);
+        setCurrentStep(previousStepIndex);
       } else {
-        setCurrentStep(previousStep);
+        setCurrentStep(currentStep - 1);
       }
     }
   };
@@ -74,17 +70,16 @@ const ReservationForm = () => {
   };
 
   const renderStep = () => {
-    const adjustedStep = getAdjustedStep(currentStep);
-    switch (adjustedStep) {
-      case 0:
+    switch (steps[currentStep]) {
+      case "Type":
         return <TypeSelectionStep />;
-      case 1:
+      case "Reservation Details":
         return <ReservationDetailsStep />;
-      case 2:
-        return formData.type === "Vehicle Reservation" ? <AdditionalNeedsStep /> : <LocationStep />;
-      case 3:
-        return formData.type === "Vehicle Reservation" ? <ReservationSummaryStep /> : <AdditionalNeedsStep />;
-      case 4:
+      case "Location":
+        return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+      case "Additional Needs":
+        return <AdditionalNeedsStep />;
+      case "Summary":
         return <ReservationSummaryStep />;
       default:
         return null;
@@ -92,10 +87,12 @@ const ReservationForm = () => {
   };
 
   const visibleSteps = getVisibleSteps();
-  const progressPercentage = (currentStep / (visibleSteps.length - 1)) * 100;
+  const progressPercentage = ((visibleSteps.indexOf(steps[currentStep]) + 1) / visibleSteps.length) * 100;
 
   const handleStepClick = (index: number) => {
-    if (index <= currentStep) {
+    const stepName = steps[index];
+    const visibleStepIndex = visibleSteps.indexOf(stepName);
+    if (visibleStepIndex <= visibleSteps.indexOf(steps[currentStep])) {
       setCurrentStep(index);
     }
   };
@@ -136,27 +133,30 @@ const ReservationForm = () => {
           <div className="max-w-3xl mx-auto mb-8">
             <Progress value={progressPercentage} className="h-2 mb-4" />
             <div className="flex justify-between px-2">
-              {visibleSteps.map((step, index) => (
-                <button
-                  key={step}
-                  onClick={() => handleStepClick(index)}
-                  className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                    index <= currentStep 
-                      ? 'text-primary cursor-pointer hover:text-primary/80' 
-                      : 'text-muted-foreground cursor-not-allowed'
-                  }`}
-                  disabled={index > currentStep}
-                >
-                  {index < currentStep && (
-                    <CheckCircle2 className="w-4 h-4" />
-                  )}
-                  <span className={`${
-                    index === currentStep ? 'text-lg font-semibold' : ''
-                  }`}>
-                    {step}
-                  </span>
-                </button>
-              ))}
+              {visibleSteps.map((step, index) => {
+                const stepIndex = steps.indexOf(step);
+                return (
+                  <button
+                    key={step}
+                    onClick={() => handleStepClick(stepIndex)}
+                    className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+                      stepIndex <= currentStep 
+                        ? 'text-primary cursor-pointer hover:text-primary/80' 
+                        : 'text-muted-foreground cursor-not-allowed'
+                    }`}
+                    disabled={stepIndex > currentStep}
+                  >
+                    {stepIndex < currentStep && (
+                      <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    <span className={`${
+                      stepIndex === currentStep ? 'text-lg font-semibold' : ''
+                    }`}>
+                      {step}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -180,7 +180,7 @@ const ReservationForm = () => {
                 </button>
               )}
               {currentStep === 0 && <div></div>}
-              {currentStep === visibleSteps.length - 1 ? (
+              {currentStep === steps.indexOf(visibleSteps[visibleSteps.length - 1]) ? (
                 <button
                   onClick={handleSubmit}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
@@ -212,3 +212,4 @@ const Index = () => {
 };
 
 export default Index;
+
