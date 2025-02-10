@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
@@ -31,22 +30,38 @@ const ReservationForm = () => {
     }
   }, [formData.type]);
 
+  const getVisibleSteps = () => {
+    if (formData.type === "Vehicle Reservation") {
+      return steps.filter(step => step !== "Location");
+    }
+    return steps;
+  };
+
+  const getAdjustedStep = (step: number) => {
+    if (formData.type === "Vehicle Reservation" && step >= 2) {
+      return step - 1;
+    }
+    return step;
+  };
+
   const handleNext = () => {
-    if (currentStep < getVisibleSteps().length - 1) {
-      if (currentStep === 1 && formData.type === "Vehicle Reservation") {
+    if (currentStep < steps.length - 1) {
+      const nextStep = currentStep + 1;
+      if (formData.type === "Vehicle Reservation" && nextStep === 2) {
         setCurrentStep(3);
       } else {
-        setCurrentStep((prev) => prev + 1);
+        setCurrentStep(nextStep);
       }
     }
   };
 
   const handleBack = () => {
     if (currentStep > 0) {
-      if (currentStep === 3 && formData.type === "Vehicle Reservation") {
+      const previousStep = currentStep - 1;
+      if (formData.type === "Vehicle Reservation" && currentStep === 3) {
         setCurrentStep(1);
       } else {
-        setCurrentStep((prev) => prev - 1);
+        setCurrentStep(previousStep);
       }
     }
   };
@@ -58,23 +73,17 @@ const ReservationForm = () => {
     });
   };
 
-  const getVisibleSteps = () => {
-    if (formData.type === "Vehicle Reservation") {
-      return steps.filter(step => step !== "Location");
-    }
-    return steps;
-  };
-
   const renderStep = () => {
-    switch (currentStep) {
+    const adjustedStep = getAdjustedStep(currentStep);
+    switch (adjustedStep) {
       case 0:
         return <TypeSelectionStep />;
       case 1:
         return <ReservationDetailsStep />;
       case 2:
-        return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+        return formData.type === "Vehicle Reservation" ? <AdditionalNeedsStep /> : <LocationStep />;
       case 3:
-        return <AdditionalNeedsStep />;
+        return formData.type === "Vehicle Reservation" ? <ReservationSummaryStep /> : <AdditionalNeedsStep />;
       case 4:
         return <ReservationSummaryStep />;
       default:
