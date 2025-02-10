@@ -33,7 +33,7 @@ const vehicleOptions: AdditionalItem[] = [
     id: "truck-1",
     type: "Pick-Up Truck",
     name: "Standard Pick-Up Truck",
-    image: "/lovable-uploads/660e1c54-6cfa-4f48-b839-50142847e25e.png",
+    image: "/lovable-uploads/4a7db52c-f46c-4061-9c89-deeb179b255f.png",
     rate: 75,
     quantityAvailable: 3,
   },
@@ -41,7 +41,7 @@ const vehicleOptions: AdditionalItem[] = [
     id: "van-1",
     type: "Service Van",
     name: "Cargo Service Van",
-    image: "/lovable-uploads/1dc74d90-cb9a-4dcf-b4e8-a97c919793ea.png",
+    image: "/lovable-uploads/fc19dc02-16dc-4c25-a71e-2c95756892cb.png",
     rate: 65,
     quantityAvailable: 5,
   },
@@ -268,7 +268,7 @@ export function AdditionalNeedsStep() {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-contain"  // Changed from object-cover to object-contain
                 />
               </CardHeader>
               <CardContent className="p-4">
