@@ -153,6 +153,17 @@ export function AdditionalNeedsStep() {
     }
   };
 
+  const handleQuantityAdjustment = (itemId: string, newQuantity: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const item = availableItems.find((item) => item.id === itemId);
+    if (item && newQuantity > 0 && newQuantity <= item.quantityAvailable) {
+      dispatch({
+        type: "UPDATE_ITEM_QUANTITY",
+        payload: { id: itemId, quantity: newQuantity },
+      });
+    }
+  };
+
   const handleCardClick = (item: AdditionalItem) => {
     setSelectedItem(item);
   };
@@ -174,9 +185,34 @@ export function AdditionalNeedsStep() {
               <Package className="w-8 h-8 text-muted-foreground mr-4" />
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
-                <p className="text-sm text-muted-foreground">
-                  Quantity: {item.selectedQuantity} | ${item.rate}/day each
-                </p>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={(e) => handleQuantityAdjustment(item.id, (item.selectedQuantity || 1) - 1, e)}
+                      disabled={(item.selectedQuantity || 1) <= 1}
+                      className="h-8 w-8"
+                    >
+                      -
+                    </Button>
+                    <span className="min-w-[40px] text-center">
+                      {item.selectedQuantity || 1}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={(e) => handleQuantityAdjustment(item.id, (item.selectedQuantity || 1) + 1, e)}
+                      disabled={(item.selectedQuantity || 1) >= item.quantityAvailable}
+                      className="h-8 w-8"
+                    >
+                      +
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    ${item.rate}/day each
+                  </p>
+                </div>
                 <div className="mt-2">
                   <p className="text-sm font-medium mb-1">Selected Dates:</p>
                   <div className="flex flex-wrap gap-2">
