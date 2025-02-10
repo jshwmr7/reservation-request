@@ -8,9 +8,9 @@ import { TypeSelectionStep } from "@/components/reservation/TypeSelectionStep";
 import { ReservationSummaryStep } from "@/components/reservation/ReservationSummaryStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { CheckCircle2 } from "lucide-react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { ProgressIndicator } from "@/components/reservation/ProgressIndicator";
 
 const steps = [
   "Type",
@@ -84,7 +84,6 @@ const ReservationForm = () => {
   };
 
   const visibleSteps = getVisibleSteps();
-  const progressPercentage = ((visibleSteps.indexOf(steps[currentStep]) + 1) / visibleSteps.length) * 100;
 
   const handleStepClick = (index: number) => {
     const stepName = steps[index];
@@ -97,25 +96,7 @@ const ReservationForm = () => {
   return (
     <div className="min-h-screen bg-[#f3f3f3] font-figtree">
       <div className="flex">
-        <div className="w-64 min-h-screen bg-sidebar-background text-sidebar-foreground p-6">
-          <div className="mb-8">
-            <img 
-              src="/lovable-uploads/4a7db52c-f46c-4061-9c89-deeb179b255f.png" 
-              alt="FMX Logo" 
-              className="w-32 mx-auto"
-            />
-          </div>
-          <nav className="space-y-2">
-            {["1-to-1 Asset Manager", "FMX Maps", "Reservation Finder", "Calendar", "To-Do List", "Work List"].map((item) => (
-              <button
-                key={item}
-                className="w-full text-left px-4 py-2 rounded hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-        </div>
+        <Sidebar />
 
         <div className="flex-1 p-8">
           <motion.div
@@ -127,35 +108,12 @@ const ReservationForm = () => {
             <h1 className="text-4xl font-bold mb-4 text-primary-dark">New Reservation</h1>
           </motion.div>
 
-          <div className="max-w-3xl mx-auto mb-8">
-            <Progress value={progressPercentage} className="h-2 mb-4" />
-            <div className="flex justify-between px-2">
-              {visibleSteps.map((step, index) => {
-                const stepIndex = steps.indexOf(step);
-                return (
-                  <button
-                    key={step}
-                    onClick={() => handleStepClick(stepIndex)}
-                    className={`flex items-center gap-2 text-sm font-medium transition-colors ${
-                      stepIndex <= currentStep 
-                        ? 'text-primary cursor-pointer hover:text-primary/80' 
-                        : 'text-muted-foreground cursor-not-allowed'
-                    }`}
-                    disabled={stepIndex > currentStep}
-                  >
-                    {stepIndex < currentStep && (
-                      <CheckCircle2 className="w-4 h-4" />
-                    )}
-                    <span className={`${
-                      stepIndex === currentStep ? 'text-lg font-semibold' : ''
-                    }`}>
-                      {step}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <ProgressIndicator 
+            steps={steps}
+            visibleSteps={visibleSteps}
+            currentStep={currentStep}
+            onStepClick={handleStepClick}
+          />
 
           <motion.div
             key={currentStep}
