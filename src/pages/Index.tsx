@@ -40,8 +40,9 @@ const ReservationForm = () => {
 
   const handleNext = () => {
     const visibleSteps = getVisibleSteps();
-    if (currentStep < visibleSteps.length - 1) {
-      const nextStep = visibleSteps[visibleSteps.indexOf(steps[currentStep]) + 1];
+    const currentVisibleIndex = visibleSteps.indexOf(steps[currentStep]);
+    if (currentVisibleIndex < visibleSteps.length - 1) {
+      const nextStep = visibleSteps[currentVisibleIndex + 1];
       const nextStepIndex = steps.indexOf(nextStep);
       setCurrentStep(nextStepIndex);
     }
@@ -49,16 +50,12 @@ const ReservationForm = () => {
 
   const handleBack = () => {
     const visibleSteps = getVisibleSteps();
-    if (currentStep > 0) {
-      const currentVisibleStep = steps[currentStep];
-      const currentVisibleIndex = visibleSteps.indexOf(currentVisibleStep);
-      if (currentVisibleIndex > 0) {
-        const previousStep = visibleSteps[currentVisibleIndex - 1];
-        const previousStepIndex = steps.indexOf(previousStep);
-        setCurrentStep(previousStepIndex);
-      } else {
-        setCurrentStep(currentStep - 1);
-      }
+    const currentVisibleStep = steps[currentStep];
+    const currentVisibleIndex = visibleSteps.indexOf(currentVisibleStep);
+    if (currentVisibleIndex > 0) {
+      const previousStep = visibleSteps[currentVisibleIndex - 1];
+      const previousStepIndex = steps.indexOf(previousStep);
+      setCurrentStep(previousStepIndex);
     }
   };
 
@@ -212,4 +209,3 @@ const Index = () => {
 };
 
 export default Index;
-
