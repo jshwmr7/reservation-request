@@ -2,7 +2,7 @@
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
 import { ModuleType } from "@/types/reservation";
-import { FileText, Tool } from "lucide-react";
+import { FileText, Wrench } from "lucide-react";
 
 export function ModuleSelectionStep() {
   const { formData, dispatch } = useReservationForm();
@@ -42,7 +42,7 @@ export function ModuleSelectionStep() {
           }`}
         >
           <div className="flex flex-col items-center space-y-4 text-center">
-            <Tool className="w-12 h-12 text-primary" />
+            <Wrench className="w-12 h-12 text-primary" />
             <div>
               <h3 className="text-lg font-semibold">Maintenance Request</h3>
               <p className="text-sm text-muted-foreground">
