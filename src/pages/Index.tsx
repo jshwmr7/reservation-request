@@ -5,6 +5,7 @@ import { ReservationDetailsStep } from "@/components/reservation/ReservationDeta
 import { LocationStep } from "@/components/reservation/LocationStep";
 import { AdditionalNeedsStep } from "@/components/reservation/AdditionalNeedsStep";
 import { TypeSelectionStep } from "@/components/reservation/TypeSelectionStep";
+import { ModuleSelectionStep } from "@/components/reservation/ModuleSelectionStep";
 import { ReservationSummaryStep } from "@/components/reservation/ReservationSummaryStep";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { ProgressIndicator } from "@/components/reservation/ProgressIndicator";
 
 const steps = [
+  "Module",
   "Type",
   "Reservation Details",
   "Location",
@@ -26,10 +28,13 @@ const ReservationForm = () => {
   const { formData } = useReservationForm();
 
   React.useEffect(() => {
-    if (formData.type && currentStep === 0) {
+    if (formData.module && currentStep === 0) {
       handleNext();
     }
-  }, [formData.type]);
+    if (formData.type && currentStep === 1) {
+      handleNext();
+    }
+  }, [formData.module, formData.type]);
 
   const getVisibleSteps = () => {
     if (formData.type === "Vehicle Reservation") {
@@ -68,6 +73,8 @@ const ReservationForm = () => {
 
   const renderStep = () => {
     switch (steps[currentStep]) {
+      case "Module":
+        return <ModuleSelectionStep />;
       case "Type":
         return <TypeSelectionStep />;
       case "Reservation Details":
@@ -105,7 +112,7 @@ const ReservationForm = () => {
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
-            <h1 className="text-4xl font-bold mb-4 text-primary-dark">New Reservation</h1>
+            <h1 className="text-4xl font-bold mb-4 text-primary-dark">New Request</h1>
           </motion.div>
 
           <ProgressIndicator 
@@ -140,7 +147,7 @@ const ReservationForm = () => {
                   onClick={handleSubmit}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
                 >
-                  Submit Reservation
+                  Submit Request
                 </button>
               ) : (
                 <button

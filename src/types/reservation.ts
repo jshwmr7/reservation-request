@@ -1,4 +1,6 @@
 
+export type ModuleType = 'Reservation Request' | 'Maintenance Request';
+
 export type ReservationType = 'Vehicle Reservation' | 'Facility Rental';
 
 export type LocationType = 'Sports Field' | 'Baseball Diamond' | 'Gymnasium' | 'Classroom';
@@ -40,6 +42,7 @@ export interface AdditionalItem {
 }
 
 export interface ReservationFormData {
+  module?: ModuleType;
   type: ReservationType;
   description: string;
   dates: ReservationDate[];

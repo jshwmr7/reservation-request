@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useReducer } from 'react';
-import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate } from '@/types/reservation';
+import { ReservationFormData, ReservationType, Location, AdditionalItem, ReservationDate, ModuleType } from '@/types/reservation';
 
 type Action =
+  | { type: 'SET_MODULE'; payload: ModuleType }
   | { type: 'SET_TYPE'; payload: ReservationType }
   | { type: 'SET_DESCRIPTION'; payload: string }
   | { type: 'ADD_DATE'; payload: ReservationDate }
@@ -25,7 +25,8 @@ interface ReservationFormContextType {
 }
 
 const initialState: ReservationFormData = {
-  type: '' as ReservationType, // Start with empty type
+  module: undefined,
+  type: '' as ReservationType,
   description: '',
   dates: [],
   locations: [],
@@ -36,6 +37,8 @@ const ReservationFormContext = createContext<ReservationFormContextType | undefi
 
 function reservationFormReducer(state: ReservationFormData, action: Action): ReservationFormData {
   switch (action.type) {
+    case 'SET_MODULE':
+      return { ...state, module: action.payload };
     case 'SET_TYPE':
       return { ...state, type: action.payload };
     case 'SET_DESCRIPTION':
