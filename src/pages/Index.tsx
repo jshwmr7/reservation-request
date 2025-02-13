@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
@@ -10,7 +9,6 @@ import { ReservationSummaryStep } from "@/components/reservation/ReservationSumm
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { Sidebar } from "@/components/layout/Sidebar";
 import { ProgressIndicator } from "@/components/reservation/ProgressIndicator";
 
 const steps = [
@@ -102,64 +100,61 @@ const ReservationForm = () => {
 
   return (
     <div className="min-h-screen bg-[#f3f3f3] font-figtree">
-      <div className="flex">
-        <Sidebar />
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-semibold mb-2 text-gray-800">New Request</h1>
+          <p className="text-gray-600">Complete the form to submit your request</p>
+        </motion.div>
 
-        <div className="flex-1 p-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl font-bold mb-4 text-primary-dark">New Request</h1>
-          </motion.div>
+        <ProgressIndicator 
+          steps={steps}
+          visibleSteps={visibleSteps}
+          currentStep={currentStep}
+          onStepClick={handleStepClick}
+        />
 
-          <ProgressIndicator 
-            steps={steps}
-            visibleSteps={visibleSteps}
-            currentStep={currentStep}
-            onStepClick={handleStepClick}
-          />
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-lg shadow-sm p-6 mb-6"
+        >
+          <div className="min-h-[400px]">{renderStep()}</div>
 
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-lg shadow-lg p-8 mb-8"
-          >
-            <div className="min-h-[400px]">{renderStep()}</div>
-
-            <div className="flex justify-between mt-8">
-              {currentStep > 0 && (
-                <button
-                  onClick={handleBack}
-                  className="px-6 py-2 rounded-lg transition-all duration-200 hover:bg-muted"
-                >
-                  Back
-                </button>
-              )}
-              {currentStep === 0 && <div></div>}
-              {currentStep === steps.indexOf(visibleSteps[visibleSteps.length - 1]) ? (
-                <button
-                  onClick={handleSubmit}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
-                >
-                  Submit Request
-                </button>
-              ) : (
-                <button
-                  onClick={handleNext}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-all duration-200"
-                >
-                  Continue
-                </button>
-              )}
-            </div>
-          </motion.div>
-        </div>
+          <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
+            {currentStep > 0 && (
+              <button
+                onClick={handleBack}
+                className="px-5 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Back
+              </button>
+            )}
+            {currentStep === 0 && <div></div>}
+            {currentStep === steps.indexOf(visibleSteps[visibleSteps.length - 1]) ? (
+              <button
+                onClick={handleSubmit}
+                className="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Submit Request
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Continue
+              </button>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
