@@ -1,10 +1,10 @@
-
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
-import { AdditionalItem } from "@/types/reservation";
+import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Filter } from "lucide-react";
 import { format } from "date-fns";
+import { useState } from "react";
 
 const MOCK_FACILITY_ITEMS: AdditionalItem[] = [
   {
@@ -70,6 +70,7 @@ const MOCK_VEHICLES: AdditionalItem[] = [
 
 export function AdditionalNeedsStep() {
   const { formData, dispatch } = useReservationForm();
+  const [selectedTypes, setSelectedTypes] = useState<(VehicleType | FacilityItemType)[]>([]);
 
   const handleItemSelect = (item: AdditionalItem) => {
     if (formData.additionalItems.some(i => i.id === item.id)) {
@@ -121,13 +122,45 @@ export function AdditionalNeedsStep() {
     return item?.includedDates?.includes(dateId) || false;
   };
 
-  const showVehicles = formData.type === "Staff Vehicle" || formData.type === "Field Trip";
+  const showVehicles = formData.type === "Staff Vehicle" || formData.type === "Field Trip" || formData.module === "Transportation Requests";
   const items = showVehicles ? MOCK_VEHICLES : MOCK_FACILITY_ITEMS;
+  
+  const allTypes = Array.from(new Set(items.map(item => item.type)));
+
+  const toggleType = (type: VehicleType | FacilityItemType) => {
+    setSelectedTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
+  const filteredItems = items.filter(item => 
+    selectedTypes.length === 0 || selectedTypes.includes(item.type)
+  );
 
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+          <Filter className="h-4 w-4" /> Type Filters
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {allTypes.map((type) => (
+            <Button
+              key={type}
+              variant={selectedTypes.includes(type) ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleType(type)}
+            >
+              {type}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <Card
             key={item.id}
             className="p-6"

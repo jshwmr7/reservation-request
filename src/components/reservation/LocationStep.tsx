@@ -1,11 +1,12 @@
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
-import { Location } from "@/types/reservation";
+import { Location, LocationType, Amenity } from "@/types/reservation";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Filter } from "lucide-react";
+import { useState } from "react";
 
 const MOCK_LOCATIONS: Location[] = [
   {
@@ -49,6 +50,8 @@ const MOCK_LOCATIONS: Location[] = [
 
 export function LocationStep() {
   const { formData, dispatch } = useReservationForm();
+  const [selectedTypes, setSelectedTypes] = useState<LocationType[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<Amenity[]>([]);
 
   // Skip this step for transportation requests
   if (formData.module === "Transportation Requests" || formData.type === "Staff Vehicle" || formData.type === "Field Trip") {
@@ -119,10 +122,73 @@ export function LocationStep() {
     }
   };
 
+  const allTypes = Array.from(new Set(MOCK_LOCATIONS.map(location => location.type)));
+  const allAmenities = Array.from(new Set(MOCK_LOCATIONS.flatMap(location => location.amenities)));
+
+  const toggleType = (type: LocationType) => {
+    setSelectedTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
+  const toggleAmenity = (amenity: Amenity) => {
+    setSelectedAmenities(prev => 
+      prev.includes(amenity) 
+        ? prev.filter(a => a !== amenity)
+        : [...prev, amenity]
+    );
+  };
+
+  const filteredLocations = MOCK_LOCATIONS.filter(location => {
+    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(location.type);
+    const matchesAmenities = selectedAmenities.length === 0 || 
+      selectedAmenities.every(amenity => location.amenities.includes(amenity));
+    return matchesType && matchesAmenities;
+  });
+
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div>
+          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Filter className="h-4 w-4" /> Type Filters
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {allTypes.map((type) => (
+              <Button
+                key={type}
+                variant={selectedTypes.includes(type) ? "default" : "outline"}
+                size="sm"
+                onClick={() => toggleType(type)}
+              >
+                {type}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+            <Filter className="h-4 w-4" /> Amenity Filters
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {allAmenities.map((amenity) => (
+              <Button
+                key={amenity}
+                variant={selectedAmenities.includes(amenity) ? "default" : "outline"}
+                size="sm"
+                onClick={() => toggleAmenity(amenity)}
+              >
+                {amenity}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-6">
-        {MOCK_LOCATIONS.map((location) => (
+        {filteredLocations.map((location) => (
           <Card
             key={location.id}
             className="p-6"
