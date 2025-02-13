@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ReservationFormProvider } from "@/contexts/ReservationFormContext";
 import { ReservationDetailsStep } from "@/components/reservation/ReservationDetailsStep";
@@ -99,7 +100,7 @@ const ReservationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f3f3] font-figtree">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,7 +108,7 @@ const ReservationForm = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl font-semibold mb-2 text-gray-800">New Request</h1>
+          <h1 className="text-2xl mb-2">New Request</h1>
           <p className="text-gray-600">Complete the form to submit your request</p>
         </motion.div>
 
@@ -124,15 +125,15 @@ const ReservationForm = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="bg-white rounded-lg shadow-sm p-6 mb-6"
+          className="border border-gray-200 rounded p-6 mb-6"
         >
           <div className="min-h-[400px]">{renderStep()}</div>
 
-          <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
+          <div className="flex justify-between mt-6 pt-4 border-t border-gray-200">
             {currentStep > 0 && (
               <button
                 onClick={handleBack}
-                className="px-5 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                className="px-5 py-2 text-gray-600 hover:bg-gray-100 transition-colors rounded"
               >
                 Back
               </button>
@@ -141,14 +142,14 @@ const ReservationForm = () => {
             {currentStep === steps.indexOf(visibleSteps[visibleSteps.length - 1]) ? (
               <button
                 onClick={handleSubmit}
-                className="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="px-5 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
               >
                 Submit Request
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className="px-5 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="px-5 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
               >
                 Continue
               </button>
