@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { AdditionalItem } from "@/types/reservation";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { format } from "date-fns";
 
 const MOCK_FACILITY_ITEMS: AdditionalItem[] = [
   {
@@ -91,6 +92,21 @@ export function AdditionalNeedsStep() {
     });
   };
 
+  const handleDateToggle = (itemId: string, dateId: string) => {
+    const item = formData.additionalItems.find(i => i.id === itemId);
+    if (item?.includedDates?.includes(dateId)) {
+      dispatch({
+        type: "REMOVE_DATE_FROM_ITEM",
+        payload: { itemId, dateId },
+      });
+    } else {
+      dispatch({
+        type: "ADD_DATE_TO_ITEM",
+        payload: { itemId, dateId },
+      });
+    }
+  };
+
   const isItemSelected = (itemId: string) => {
     return formData.additionalItems.some(item => item.id === itemId);
   };
@@ -98,6 +114,11 @@ export function AdditionalNeedsStep() {
   const getSelectedQuantity = (itemId: string) => {
     const item = formData.additionalItems.find(item => item.id === itemId);
     return item?.selectedQuantity || 0;
+  };
+
+  const isDateIncluded = (itemId: string, dateId: string) => {
+    const item = formData.additionalItems.find(i => i.id === itemId);
+    return item?.includedDates?.includes(dateId) || false;
   };
 
   const showVehicles = formData.type === "Staff Vehicle" || formData.type === "Field Trip";
@@ -132,31 +153,53 @@ export function AdditionalNeedsStep() {
                   )}
                 </Button>
                 {isItemSelected(item.id) && (
-                  <div className="flex items-center justify-center mt-4">
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleQuantityChange(item.id, getSelectedQuantity(item.id) - 1);
-                      }}
-                      disabled={getSelectedQuantity(item.id) <= 0}
-                      variant="outline"
-                      size="sm"
-                    >
-                      -
-                    </Button>
-                    <span className="mx-4">{getSelectedQuantity(item.id)}</span>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleQuantityChange(item.id, getSelectedQuantity(item.id) + 1);
-                      }}
-                      disabled={getSelectedQuantity(item.id) >= item.quantityAvailable}
-                      variant="outline"
-                      size="sm"
-                    >
-                      +
-                    </Button>
-                  </div>
+                  <>
+                    <div className="flex items-center justify-center mt-4">
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuantityChange(item.id, getSelectedQuantity(item.id) - 1);
+                        }}
+                        disabled={getSelectedQuantity(item.id) <= 0}
+                        variant="outline"
+                        size="sm"
+                      >
+                        -
+                      </Button>
+                      <span className="mx-4">{getSelectedQuantity(item.id)}</span>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuantityChange(item.id, getSelectedQuantity(item.id) + 1);
+                        }}
+                        disabled={getSelectedQuantity(item.id) >= item.quantityAvailable}
+                        variant="outline"
+                        size="sm"
+                      >
+                        +
+                      </Button>
+                    </div>
+                    {formData.dates.length > 0 && (
+                      <div className="mt-4 border-t pt-4">
+                        <p className="text-sm font-medium mb-2">Selected Dates:</p>
+                        <div className="space-y-2">
+                          {formData.dates.map((date) => (
+                            <div
+                              key={date.id}
+                              onClick={() => handleDateToggle(item.id, date.id)}
+                              className={`text-sm p-2 rounded cursor-pointer ${
+                                isDateIncluded(item.id, date.id)
+                                  ? "bg-primary text-white"
+                                  : "bg-gray-100 text-gray-500"
+                              }`}
+                            >
+                              {format(date.date, "MMM d, yyyy")} ({date.startTime} - {date.endTime})
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
