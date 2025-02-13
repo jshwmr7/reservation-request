@@ -34,12 +34,6 @@ export function TypeSelectionStep() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div>
                 <h3 className="text-lg font-semibold">{option.label}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {option.type === "Athletics" && "Schedule athletic facilities and equipment"}
-                  {option.type === "Meeting" && "Book meeting rooms and spaces"}
-                  {option.type === "Field Trip" && "Request transportation for field trips"}
-                  {option.type === "Staff Vehicle" && "Reserve vehicles for staff use"}
-                </p>
               </div>
             </div>
           </Card>

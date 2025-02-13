@@ -36,7 +36,7 @@ const ReservationForm = () => {
   }, [formData.module, formData.type]);
 
   const getVisibleSteps = () => {
-    if (formData.type === "Vehicle Reservation") {
+    if (formData.type === "Staff Vehicle" || formData.type === "Field Trip") {
       return steps.filter(step => step !== "Location");
     }
     return steps;
@@ -79,7 +79,7 @@ const ReservationForm = () => {
       case "Reservation Details":
         return <ReservationDetailsStep />;
       case "Location":
-        return formData.type === "Vehicle Reservation" ? null : <LocationStep />;
+        return (formData.type === "Staff Vehicle" || formData.type === "Field Trip") ? null : <LocationStep />;
       case "Additional Needs":
         return <AdditionalNeedsStep />;
       case "Summary":
@@ -108,8 +108,7 @@ const ReservationForm = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-8"
         >
-          <h1 className="text-2xl mb-2">New Request</h1>
-          <p className="text-gray-600">Complete the form to submit your request</p>
+          <h1 className="text-2xl">New Request</h1>
         </motion.div>
 
         <ProgressIndicator 

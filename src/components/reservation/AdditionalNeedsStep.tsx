@@ -1,381 +1,153 @@
-import { useState } from "react";
 import { useReservationForm } from "@/contexts/ReservationFormContext";
-import { AdditionalItem, VehicleType, FacilityItemType } from "@/types/reservation";
-import { Button } from "@/components/ui/button";
-import { nanoid } from "nanoid";
-import { format } from "date-fns";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { PlusCircle, X, Package, ToggleLeft, ToggleRight } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { AdditionalItem } from "@/types/reservation";
 
-const vehicleOptions: AdditionalItem[] = [
+const MOCK_FACILITY_ITEMS: AdditionalItem[] = [
   {
-    id: "truck-1",
-    type: "Pick-Up Truck",
-    name: "Standard Pick-Up Truck",
-    image: "/lovable-uploads/172d815c-afdc-4f89-90fd-c95322397a50.png",
-    rate: 75,
-    quantityAvailable: 3,
+    id: "1",
+    type: "Chairs",
+    name: "Folding Chairs",
+    image: "/placeholder.svg",
+    rate: 5,
+    quantityAvailable: 100
   },
   {
-    id: "van-1",
-    type: "Service Van",
-    name: "Cargo Service Van",
-    image: "/lovable-uploads/c76142a3-5f60-49b9-9a08-0d6b3ceb4612.png",
-    rate: 65,
-    quantityAvailable: 5,
+    id: "2",
+    type: "Tables",
+    name: "Banquet Tables",
+    image: "/placeholder.svg",
+    rate: 15,
+    quantityAvailable: 20
   },
   {
-    id: "car-1",
-    type: "Commuter Car",
-    name: "Economy Commuter Car",
-    image: "/lovable-uploads/4606827a-411c-454f-bb05-cfbeb377b660.png",
-    rate: 45,
-    quantityAvailable: 8,
+    id: "3",
+    type: "Microphone",
+    name: "Wireless Microphone",
+    image: "/placeholder.svg",
+    rate: 25,
+    quantityAvailable: 5
+  },
+  {
+    id: "4",
+    type: "Projector",
+    name: "HD Projector",
+    image: "/placeholder.svg",
+    rate: 50,
+    quantityAvailable: 3
   },
 ];
 
-const facilityOptions: AdditionalItem[] = [
+const MOCK_VEHICLES: AdditionalItem[] = [
   {
-    id: "chairs-1",
-    type: "Chairs",
-    name: "Folding Chairs",
-    image: "/lovable-uploads/fc63c5f2-0727-4982-8cc4-129d1588d12e.png",
-    rate: 2,
-    quantityAvailable: 100,
+    id: "v1",
+    type: "Pick-Up Truck",
+    name: "Ford F-150",
+    image: "/placeholder.svg",
+    rate: 75,
+    quantityAvailable: 2
   },
   {
-    id: "tables-1",
-    type: "Tables",
-    name: "Banquet Tables",
-    image: "/lovable-uploads/34e9629b-fd6d-44f7-ab65-3d8cddaa30fd.png",
-    rate: 10,
-    quantityAvailable: 30,
+    id: "v2",
+    type: "Service Van",
+    name: "Ford Transit",
+    image: "/placeholder.svg",
+    rate: 100,
+    quantityAvailable: 1
   },
   {
-    id: "mic-1",
-    type: "Microphone",
-    name: "Wireless Microphone",
-    image: "/lovable-uploads/8d9c0aaa-3010-4568-890e-93f80e82834e.png",
-    rate: 25,
-    quantityAvailable: 10,
-  },
-  {
-    id: "proj-1",
-    type: "Projector",
-    name: "HD Projector",
-    image: "/lovable-uploads/37a4fb28-8e76-47cb-b1bd-735f68514225.png",
+    id: "v3",
+    type: "Commuter Car",
+    name: "Toyota Prius",
+    image: "/placeholder.svg",
     rate: 50,
-    quantityAvailable: 5,
+    quantityAvailable: 3
   },
 ];
 
 export function AdditionalNeedsStep() {
   const { formData, dispatch } = useReservationForm();
-  const [selectedQuantities, setSelectedQuantities] = useState<Record<string, number>>({});
-  const [selectedType, setSelectedType] = useState<string>("all");
-  const [selectedItem, setSelectedItem] = useState<AdditionalItem | null>(null);
 
-  const availableItems = formData.type === "Vehicle Reservation" ? vehicleOptions : facilityOptions;
-  const filteredItems = selectedType === "all" 
-    ? availableItems 
-    : availableItems.filter(item => item.type === selectedType);
-
-  const itemTypes = formData.type === "Vehicle Reservation" 
-    ? ["Pick-Up Truck", "Service Van", "Commuter Car"]
-    : ["Chairs", "Tables", "Microphone", "Projector"];
-
-  const handleAddItem = (item: AdditionalItem) => {
-    const quantity = selectedQuantities[item.id] || 1;
-    if (quantity > 0 && quantity <= item.quantityAvailable) {
+  const handleItemSelect = (item: AdditionalItem) => {
+    if (formData.additionalItems.some(i => i.id === item.id)) {
       dispatch({
-        type: "ADD_ITEM",
-        payload: { ...item, selectedQuantity: quantity, includedDates: formData.dates.map(date => date.id) },
-      });
-      setSelectedQuantities((prev) => ({ ...prev, [item.id]: 0 }));
-    }
-  };
-
-  const handleRemoveItem = (itemId: string, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    dispatch({ type: "REMOVE_ITEM", payload: itemId });
-  };
-
-  const handleRemoveDateFromItem = (itemId: string, dateId: string) => {
-    dispatch({
-      type: "REMOVE_DATE_FROM_ITEM",
-      payload: { itemId, dateId },
-    });
-  };
-
-  const handleQuantityChange = (itemId: string, value: string) => {
-    const quantity = Math.min(
-      Math.max(1, parseInt(value) || 1),
-      availableItems.find((item) => item.id === itemId)?.quantityAvailable || 1
-    );
-    setSelectedQuantities((prev) => ({ ...prev, [itemId]: quantity }));
-  };
-
-  const handleDateToggle = (itemId: string, dateId: string) => {
-    const item = formData.additionalItems.find(item => item.id === itemId);
-    const isIncluded = item?.includedDates?.includes(dateId);
-    
-    if (isIncluded) {
-      dispatch({
-        type: "REMOVE_DATE_FROM_ITEM",
-        payload: { itemId, dateId },
+        type: "REMOVE_ADDITIONAL_ITEM",
+        payload: item.id,
       });
     } else {
       dispatch({
-        type: "ADD_DATE_TO_ITEM",
-        payload: { itemId, dateId },
+        type: "ADD_ADDITIONAL_ITEM",
+        payload: { ...item, selectedQuantity: 1 },
       });
     }
   };
 
-  const handleQuantityAdjustment = (itemId: string, newQuantity: number, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const item = availableItems.find((item) => item.id === itemId);
-    if (item && newQuantity > 0 && newQuantity <= item.quantityAvailable) {
-      dispatch({
-        type: "UPDATE_ITEM_QUANTITY",
-        payload: { id: itemId, quantity: newQuantity },
-      });
-    }
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    dispatch({
+      type: "UPDATE_ITEM_QUANTITY",
+      payload: { itemId, quantity },
+    });
   };
 
-  const handleCardClick = (item: AdditionalItem) => {
-    setSelectedItem(item);
+  const isItemSelected = (itemId: string) => {
+    return formData.additionalItems.some(item => item.id === itemId);
   };
+
+  const getSelectedQuantity = (itemId: string) => {
+    const item = formData.additionalItems.find(item => item.id === itemId);
+    return item?.selectedQuantity || 0;
+  };
+
+  const showVehicles = formData.type === "Staff Vehicle" || formData.type === "Field Trip";
+  const items = showVehicles ? MOCK_VEHICLES : MOCK_FACILITY_ITEMS;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-primary-dark">Selected Items</h2>
-      </div>
-
-      <div className="space-y-4">
-        {formData.additionalItems.map((item) => (
-          <Card 
-            key={item.id} 
-            className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => handleCardClick(item)}
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
+        {items.map((item) => (
+          <Card
+            key={item.id}
+            onClick={() => handleItemSelect(item)}
+            className={`p-6 cursor-pointer transition-all hover:border-primary ${
+              isItemSelected(item.id) ? "border-2 border-primary" : ""
+            }`}
           >
-            <div className="flex items-center p-4">
-              <Package className="w-8 h-8 text-muted-foreground mr-4" />
-              <div className="flex-1">
-                <h4 className="font-medium">{item.name}</h4>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={(e) => handleQuantityAdjustment(item.id, (item.selectedQuantity || 1) - 1, e)}
-                      disabled={(item.selectedQuantity || 1) <= 1}
-                      className="h-8 w-8"
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
+              <div>
+                <h3 className="text-lg font-semibold">{item.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Rate: ${item.rate} / day | Available: {item.quantityAvailable}
+                </p>
+                {isItemSelected(item.id) && (
+                  <div className="flex items-center justify-center mt-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(item.id, getSelectedQuantity(item.id) - 1);
+                      }}
+                      disabled={getSelectedQuantity(item.id) <= 0}
+                      className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
                     >
                       -
-                    </Button>
-                    <span className="min-w-[40px] text-center">
-                      {item.selectedQuantity || 1}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={(e) => handleQuantityAdjustment(item.id, (item.selectedQuantity || 1) + 1, e)}
-                      disabled={(item.selectedQuantity || 1) >= item.quantityAvailable}
-                      className="h-8 w-8"
+                    </button>
+                    <span className="mx-2">{getSelectedQuantity(item.id)}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(item.id, getSelectedQuantity(item.id) + 1);
+                      }}
+                      disabled={getSelectedQuantity(item.id) >= item.quantityAvailable}
+                      className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
                     >
                       +
-                    </Button>
+                    </button>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    ${item.rate}/day each
-                  </p>
-                </div>
-                <div className="mt-2">
-                  <p className="text-sm font-medium mb-1">Selected Dates:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.dates.map((date) => {
-                      const isIncluded = item.includedDates?.includes(date.id);
-                      return (
-                        <Button 
-                          key={date.id}
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDateToggle(item.id, date.id);
-                          }}
-                          className={`flex items-center gap-2 transition-colors ${
-                            isIncluded 
-                              ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
-                              : 'hover:bg-muted'
-                          }`}
-                        >
-                          {isIncluded ? (
-                            <ToggleRight className="w-4 h-4" />
-                          ) : (
-                            <ToggleLeft className="w-4 h-4" />
-                          )}
-                          <span>
-                            {format(date.date, "MMM d")} ({date.startTime}-{date.endTime})
-                          </span>
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => handleRemoveItem(item.id, e)}
-                className="shrink-0"
-              >
-                <X className="w-4 h-4 text-destructive" />
-              </Button>
             </div>
           </Card>
         ))}
-        {formData.additionalItems.length === 0 && (
-          <div className="text-center p-8 border-2 border-dashed rounded-lg">
-            <p className="text-muted-foreground">No items selected</p>
-          </div>
-        )}
       </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center space-x-4">
-          <Select
-            value={selectedType}
-            onValueChange={(value) => setSelectedType(value)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {itemTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {selectedType !== "all" && (
-            <button
-              onClick={() => setSelectedType("all")}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          <h2 className="text-2xl font-semibold text-primary-dark flex-1">Available Items</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredItems.map((item) => (
-            <Card 
-              key={item.id} 
-              className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => handleCardClick(item)}
-            >
-              <CardHeader className="p-0">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-48 object-contain"  // Changed from object-cover to object-contain
-                />
-              </CardHeader>
-              <CardContent className="p-4">
-                <CardTitle className="text-lg mb-2">{item.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Rate: ${item.rate}/day
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Available: {item.quantityAvailable}
-                </p>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between p-4 bg-muted/50">
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="number"
-                    min="1"
-                    max={item.quantityAvailable}
-                    value={selectedQuantities[item.id] || 1}
-                    onClick={(e) => e.stopPropagation()}
-                    onChange={(e) =>
-                      handleQuantityChange(item.id, e.target.value)
-                    }
-                    className="w-20"
-                  />
-                  <span className="text-sm text-muted-foreground">Quantity</span>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddItem(item);
-                  }}
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <Dialog 
-        open={selectedItem !== null} 
-        onOpenChange={() => setSelectedItem(null)}
-      >
-        <DialogContent className="max-w-3xl h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedItem?.name}</DialogTitle>
-            <DialogDescription>
-              Detailed view of the selected item
-            </DialogDescription>
-          </DialogHeader>
-          {selectedItem && (
-            <div className="space-y-4">
-              <img
-                src={selectedItem.image}
-                alt={selectedItem.name}
-                className="w-full h-64 object-cover rounded-lg"
-              />
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">{selectedItem.name}</h3>
-                <p className="text-muted-foreground">Type: {selectedItem.type}</p>
-                <p className="text-muted-foreground">Rate: ${selectedItem.rate}/day</p>
-                <p className="text-muted-foreground">Available Quantity: {selectedItem.quantityAvailable}</p>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
