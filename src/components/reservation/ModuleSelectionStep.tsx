@@ -2,7 +2,7 @@
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
 import { ModuleType } from "@/types/reservation";
-import { FileText, Wrench } from "lucide-react";
+import { Clock, Bus } from "lucide-react";
 
 export function ModuleSelectionStep() {
   const { formData, dispatch } = useReservationForm();
@@ -15,38 +15,38 @@ export function ModuleSelectionStep() {
     <div className="space-y-6 animate-fade-in">
       <div className="grid md:grid-cols-2 gap-6">
         <Card
-          onClick={() => handleModuleSelect("Reservation Request")}
+          onClick={() => handleModuleSelect("Schedule Requests")}
           className={`p-6 cursor-pointer transition-all hover:border-primary ${
-            formData.module === "Reservation Request"
+            formData.module === "Schedule Requests"
               ? "border-2 border-primary"
               : ""
           }`}
         >
           <div className="flex flex-col items-center space-y-4 text-center">
-            <FileText className="w-12 h-12 text-primary" />
+            <Clock className="w-12 h-12 text-primary" />
             <div>
-              <h3 className="text-lg font-semibold">Reservation Request</h3>
+              <h3 className="text-lg font-semibold">Schedule Requests</h3>
               <p className="text-sm text-muted-foreground">
-                Request facilities or vehicles for your needs
+                Request facilities for athletics and meetings
               </p>
             </div>
           </div>
         </Card>
 
         <Card
-          onClick={() => handleModuleSelect("Maintenance Request")}
+          onClick={() => handleModuleSelect("Transportation Requests")}
           className={`p-6 cursor-pointer transition-all hover:border-primary ${
-            formData.module === "Maintenance Request"
+            formData.module === "Transportation Requests"
               ? "border-2 border-primary"
               : ""
           }`}
         >
           <div className="flex flex-col items-center space-y-4 text-center">
-            <Wrench className="w-12 h-12 text-primary" />
+            <Bus className="w-12 h-12 text-primary" />
             <div>
-              <h3 className="text-lg font-semibold">Maintenance Request</h3>
+              <h3 className="text-lg font-semibold">Transportation Requests</h3>
               <p className="text-sm text-muted-foreground">
-                Submit maintenance requests for facilities or vehicles
+                Request vehicles for field trips and staff use
               </p>
             </div>
           </div>

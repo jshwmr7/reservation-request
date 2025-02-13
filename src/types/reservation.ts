@@ -1,7 +1,6 @@
+export type ModuleType = 'Schedule Requests' | 'Transportation Requests';
 
-export type ModuleType = 'Reservation Request' | 'Maintenance Request';
-
-export type ReservationType = 'Vehicle Reservation' | 'Facility Rental';
+export type ReservationType = 'Athletics' | 'Meeting' | 'Field Trip' | 'Staff Vehicle';
 
 export type LocationType = 'Sports Field' | 'Baseball Diamond' | 'Gymnasium' | 'Classroom';
 
