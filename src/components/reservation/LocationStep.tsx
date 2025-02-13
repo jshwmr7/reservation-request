@@ -1,4 +1,3 @@
-
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
 import { Location } from "@/types/reservation";
@@ -50,6 +49,11 @@ const MOCK_LOCATIONS: Location[] = [
 
 export function LocationStep() {
   const { formData, dispatch } = useReservationForm();
+
+  // Skip this step for transportation requests
+  if (formData.module === "Transportation Requests" || formData.type === "Staff Vehicle" || formData.type === "Field Trip") {
+    return null;
+  }
 
   const handleLocationSelect = (location: Location) => {
     if (formData.locations.some(loc => loc.id === location.id)) {
@@ -114,10 +118,6 @@ export function LocationStep() {
         return "";
     }
   };
-
-  if (formData.type === "Staff Vehicle" || formData.type === "Field Trip") {
-    return null;
-  }
 
   return (
     <div className="space-y-6">
