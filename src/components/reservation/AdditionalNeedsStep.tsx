@@ -2,6 +2,8 @@
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
 import { AdditionalItem } from "@/types/reservation";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 const MOCK_FACILITY_ITEMS: AdditionalItem[] = [
   {
@@ -107,10 +109,7 @@ export function AdditionalNeedsStep() {
         {items.map((item) => (
           <Card
             key={item.id}
-            onClick={() => handleItemSelect(item)}
-            className={`p-6 cursor-pointer transition-all hover:border-primary ${
-              isItemSelected(item.id) ? "border-2 border-primary" : ""
-            }`}
+            className="p-6"
           >
             <div className="flex flex-col items-center space-y-4 text-center">
               <img src={item.image} alt={item.name} className="w-24 h-24 object-cover rounded" />
@@ -119,29 +118,44 @@ export function AdditionalNeedsStep() {
                 <p className="text-sm text-muted-foreground">
                   Rate: ${item.rate} / day | Available: {item.quantityAvailable}
                 </p>
+                <Button
+                  onClick={() => handleItemSelect(item)}
+                  variant={isItemSelected(item.id) ? "secondary" : "outline"}
+                  className="mt-4 w-full"
+                >
+                  {isItemSelected(item.id) ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4" /> Selected
+                    </>
+                  ) : (
+                    "Select Item"
+                  )}
+                </Button>
                 {isItemSelected(item.id) && (
-                  <div className="flex items-center justify-center mt-2">
-                    <button
+                  <div className="flex items-center justify-center mt-4">
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleQuantityChange(item.id, getSelectedQuantity(item.id) - 1);
                       }}
                       disabled={getSelectedQuantity(item.id) <= 0}
-                      className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+                      variant="outline"
+                      size="sm"
                     >
                       -
-                    </button>
-                    <span className="mx-2">{getSelectedQuantity(item.id)}</span>
-                    <button
+                    </Button>
+                    <span className="mx-4">{getSelectedQuantity(item.id)}</span>
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleQuantityChange(item.id, getSelectedQuantity(item.id) + 1);
                       }}
                       disabled={getSelectedQuantity(item.id) >= item.quantityAvailable}
-                      className="px-2 py-1 bg-gray-200 rounded disabled:opacity-50"
+                      variant="outline"
+                      size="sm"
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

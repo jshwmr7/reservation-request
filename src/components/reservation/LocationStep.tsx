@@ -5,6 +5,8 @@ import { Location } from "@/types/reservation";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 const MOCK_LOCATIONS: Location[] = [
   {
@@ -87,6 +89,32 @@ export function LocationStep() {
     return location?.excludedDates?.includes(dateId) || false;
   };
 
+  const getAvailabilityText = (availability: string) => {
+    switch (availability) {
+      case "all":
+        return "Available for all dates";
+      case "some":
+        return "Available for some dates";
+      case "none":
+        return "Not available for selected dates";
+      default:
+        return "";
+    }
+  };
+
+  const getAvailabilityColor = (availability: string) => {
+    switch (availability) {
+      case "all":
+        return "text-green-600";
+      case "some":
+        return "text-yellow-600";
+      case "none":
+        return "text-red-600";
+      default:
+        return "";
+    }
+  };
+
   if (formData.type === "Staff Vehicle" || formData.type === "Field Trip") {
     return null;
   }
@@ -97,10 +125,7 @@ export function LocationStep() {
         {MOCK_LOCATIONS.map((location) => (
           <Card
             key={location.id}
-            onClick={() => handleLocationSelect(location)}
-            className={`p-6 cursor-pointer transition-all hover:border-primary ${
-              isLocationSelected(location.id) ? "border-2 border-primary" : ""
-            }`}
+            className="p-6"
           >
             <div className="flex flex-col items-center space-y-4 text-center">
               <Dialog>
@@ -109,7 +134,6 @@ export function LocationStep() {
                     src={location.image}
                     alt={location.name}
                     className="w-24 h-24 rounded-full object-cover cursor-pointer hover:opacity-80"
-                    onClick={(e) => e.stopPropagation()}
                   />
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -126,11 +150,27 @@ export function LocationStep() {
                 <h3 className="text-lg font-semibold">{location.name}</h3>
                 <p className="text-sm text-muted-foreground">{location.type}</p>
                 <p className="text-sm">Rate: ${location.rate}/hour</p>
+                <p className={`text-sm mt-1 ${getAvailabilityColor(location.availability)}`}>
+                  {getAvailabilityText(location.availability)}
+                </p>
                 <div className="flex flex-wrap gap-2 mt-2 justify-center">
                   {location.amenities.map((amenity) => (
                     <Badge key={amenity} variant="secondary">{amenity}</Badge>
                   ))}
                 </div>
+                <Button
+                  onClick={() => handleLocationSelect(location)}
+                  variant={isLocationSelected(location.id) ? "secondary" : "outline"}
+                  className="mt-4 w-full"
+                >
+                  {isLocationSelected(location.id) ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4" /> Selected
+                    </>
+                  ) : (
+                    "Select Location"
+                  )}
+                </Button>
                 {isLocationSelected(location.id) && formData.dates.length > 0 && (
                   <div className="mt-4 border-t pt-4">
                     <p className="text-sm font-medium mb-2">Selected Dates:</p>
@@ -138,10 +178,7 @@ export function LocationStep() {
                       {formData.dates.map((date) => (
                         <div
                           key={date.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDateToggle(location.id, date.id);
-                          }}
+                          onClick={() => handleDateToggle(location.id, date.id)}
                           className={`text-sm p-2 rounded cursor-pointer ${
                             isDateExcluded(location.id, date.id)
                               ? "bg-gray-100 text-gray-500"
