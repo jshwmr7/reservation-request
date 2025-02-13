@@ -1,3 +1,4 @@
+
 import { useReservationForm } from "@/contexts/ReservationFormContext";
 import { Card } from "@/components/ui/card";
 import { AdditionalItem } from "@/types/reservation";
@@ -70,21 +71,21 @@ export function AdditionalNeedsStep() {
   const handleItemSelect = (item: AdditionalItem) => {
     if (formData.additionalItems.some(i => i.id === item.id)) {
       dispatch({
-        type: "REMOVE_ADDITIONAL_ITEM",
+        type: "REMOVE_ITEM",
         payload: item.id,
       });
     } else {
       dispatch({
-        type: "ADD_ADDITIONAL_ITEM",
+        type: "ADD_ITEM",
         payload: { ...item, selectedQuantity: 1 },
       });
     }
   };
 
-  const handleQuantityChange = (itemId: string, quantity: number) => {
+  const handleQuantityChange = (id: string, quantity: number) => {
     dispatch({
       type: "UPDATE_ITEM_QUANTITY",
-      payload: { itemId, quantity },
+      payload: { id, quantity },
     });
   };
 
